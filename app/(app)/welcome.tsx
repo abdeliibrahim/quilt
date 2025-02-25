@@ -42,9 +42,9 @@ const CARD_SPACING = 12;
 
 // Different gradient settings for iOS and Android
 const GRADIENT_CONFIG = {
-	width: Platform.OS === 'ios' ? SCREEN_WIDTH * 0.25 : SCREEN_WIDTH * 0.2,
-	leftEnd: Platform.OS === 'ios' ? 0.35 : 0.3,
-	rightStart: Platform.OS === 'ios' ? 0.6 : 0.65,
+  width: SCREEN_WIDTH * 0.2, // Much wider gradient
+  leftEnd: 1, // Longer fade out
+  rightStart: 0, // Earlier fade in
 };
 
 export default function WelcomeScreen() {
