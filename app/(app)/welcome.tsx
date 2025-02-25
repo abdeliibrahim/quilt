@@ -92,22 +92,20 @@ export default function WelcomeScreen() {
 
 	return (
 		<SafeAreaView className="flex flex-1 bg-background">
-			<View className="flex flex-1 px-8 pt-8 pb-4 justify-center">
-				{/* Background pattern */}
-				<View className="absolute top-0 right-0 opacity-10">
+			{/* Background pattern */}
+			<View className="absolute top-0 pt-2 right-0 opacity-100">
 					<View className="flex flex-row flex-wrap">
-						{Array.from({ length: 28 }).map((_, i) => (
-							<View 
-								key={i} 
-								className="w-12 h-12 rounded-lg m-1"
-								style={{ 
-									backgroundColor: i < 10 ? '#8A9A5B' : 'transparent',
-									opacity: i < 10 ? 0.2 + (i * 0.08) : 0
-								}} 
-							/>
-						))}
+						<Image
+							source={require("@/assets/blocks-pattern-short.svg")}
+							className="w-[400] h-[400]"
+							contentFit="cover"
+						/>
 					</View>
 				</View>
+			{/* <View className="flex pt-8 pb-4 justify-center">
+				
+			</View> */}
+			<View className="flex flex-1 px-8 pt-8 pb-4 justify-center">
 	
 				{/* Logo and tagline */}
 				<View className="items-center justify-center mt-32 mb-4">
