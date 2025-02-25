@@ -1,13 +1,15 @@
 {
 	"expo": {
-		"name": "ExpoSupabaseStarter",
-		"slug": "ExpoSupabaseStarter",
+		"name": "Quilt",
+		"slug": "Quilt",
 		"scheme": "expo-supabase-starter",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "automatic",
-		"assetBundlePatterns": ["**/*"],
+		"assetBundlePatterns": [
+			"**/*"
+		],
 		"newArchEnabled": true,
 		"ios": {
 			"supportsTablet": true,
@@ -43,6 +45,31 @@
 		"experiments": {
 			"typedRoutes": true
 		},
-		"plugins": ["expo-router", "expo-secure-store"]
+		"plugins": [
+			"expo-router",
+			"expo-secure-store"
+		],
+		"fonts": [
+			{
+				"asset": "./assets/fonts/proximanova_regular.otf",
+				"family": "ProximaNova-Regular"
+			},
+			{
+				"asset": "./assets/fonts/proximanova_bold.otf",
+				"family": "ProximaNova-Bold"
+			},
+			{
+				"asset": "./assets/fonts/proximanova_light.otf",
+				"family": "ProximaNova-Light"
+			},
+			{
+				"asset": "./assets/fonts/proximanova_medium.otf",
+				"family": "ProximaNova-Medium"
+			},
+			{
+				"asset": "./assets/fonts/proximanova_semibold.otf",
+				"family": "ProximaNova-Semibold"
+			}
+		]
 	}
 }
