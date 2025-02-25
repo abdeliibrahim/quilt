@@ -1,19 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
+import { colors } from '../../../constants/colors';
 
 export default function CaregiverOnboardingLayout() {
   const router = useRouter();
   const pathname = usePathname();
+  const colorScheme = 'light';
 
   const handleBackPress = () => {
     // If we're on the first screen of the onboarding flow, go to welcome
-    if (pathname === '/caregiver-onboarding/caregiver-info') {
-      router.replace('/welcome');
-    } else {
-      // Otherwise use the default back behavior
       router.back();
-    }
   };
 
   return (
@@ -22,14 +19,14 @@ export default function CaregiverOnboardingLayout() {
         headerShown: true,
         headerTitle: '',
         headerShadowVisible: false,
-        headerStyle: { backgroundColor: 'white' },
+        headerStyle: { backgroundColor: colors[colorScheme].background },
         headerLeft: () => (
           <TouchableOpacity onPress={handleBackPress}>
             <Ionicons name="chevron-back" size={24} color="#006B5B" />
           </TouchableOpacity>
         ),
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: 'white' },
+        contentStyle: { backgroundColor: colors[colorScheme].background },
         gestureEnabled: true,
         gestureDirection: 'horizontal',
         animationDuration: 200,
