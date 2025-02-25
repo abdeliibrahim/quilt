@@ -1,6 +1,7 @@
 export const colors = {
 	light: {
 		button: "#002C25",
+		buttonSecondary: "#2E6848",
 		background: "hsla(43, 20%, 93%, 1)",
 		foreground: "hsl(240, 10%, 3.9%)",
 		card: "hsla(43, 20%, 93%, 1)",

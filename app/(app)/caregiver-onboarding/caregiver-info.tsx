@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BackHandler, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Animated, BackHandler, Modal, Platform, ScrollView, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
 
 import { SafeAreaView } from '@/components/safe-area-view';
@@ -28,17 +29,59 @@ const RELATIONSHIP_OPTIONS = [
 
 export default function CaregiverInfoScreen() {
   const router = useRouter();
-  const [showRelationshipModal, setShowRelationshipModal] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const pickerRef = useRef<Picker<string>>(null);
+  
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(300)).current;
+  
+  // Handle animations when picker visibility changes
+  useEffect(() => {
+    if (showPicker) {
+      // Fade in background and slide up picker
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200, // Reduced from 300
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200, // Reduced from 300
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Fade out background and slide down picker
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150, // Reduced from 250
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 300,
+          duration: 150, // Reduced from 250
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [showPicker, fadeAnim, slideAnim]);
   
   // Handle hardware back button on Android
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showPicker && Platform.OS === 'ios') {
+        setShowPicker(false);
+        return true;
+      }
       router.replace('/welcome');
       return true;
     });
 
     return () => backHandler.remove();
-  }, [router]);
+  }, [router, showPicker]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,6 +102,24 @@ export default function CaregiverInfoScreen() {
   const getRelationshipLabel = (value: string) => {
     const option = RELATIONSHIP_OPTIONS.find(opt => opt.value === value);
     return option ? option.label : 'Select relationship';
+  };
+
+  // Close picker with animation
+  const closePicker = () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150, // Reduced from 250
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 300,
+        duration: 150, // Reduced from 250
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowPicker(false);
+    });
   };
 
   return (
@@ -101,60 +162,180 @@ export default function CaregiverInfoScreen() {
                 render={({ field }) => (
                   <View className="space-y-2">
                     <Text className="font-medium text-foreground pb-1 px-px">Relationship to care recipient</Text>
-                    <TouchableOpacity 
-                      onPress={() => setShowRelationshipModal(true)}
-                      className="border border-input rounded-md h-12 px-3 justify-center"
-                    >
-                      <Text className={field.value ? "text-foreground" : "text-muted-foreground"}>
-                        {field.value ? getRelationshipLabel(field.value) : "Select relationship"}
-                      </Text>
-                    </TouchableOpacity>
+                    
+                    {Platform.OS === 'web' && (
+                      <View className="border border-input rounded-md overflow-hidden">
+                        <select
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="w-full h-12 px-3 bg-transparent text-foreground focus:outline-none"
+                          style={{ 
+                            appearance: 'none',
+                            WebkitAppearance: 'none',
+                            MozAppearance: 'none',
+                            backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a1a1aa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.7rem top 50%',
+                            backgroundSize: '0.65rem auto',
+                            paddingRight: '1.75rem'
+                          }}
+                        >
+                          <option value="" disabled>Select relationship</option>
+                          {RELATIONSHIP_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </View>
+                    )}
+                    
+                    {Platform.OS === 'android' && (
+                      <View>
+                        <TouchableOpacity 
+                          onPress={() => {
+                            setShowPicker(true);
+                            setTimeout(() => {
+                              pickerRef.current?.focus();
+                            }, 100);
+                          }}
+                          className="border border-input rounded-md h-12 px-3 justify-center"
+                        >
+                          <Text className={field.value ? "text-foreground" : "text-muted-foreground"}>
+                            {field.value ? getRelationshipLabel(field.value) : "Select relationship"}
+                          </Text>
+                        </TouchableOpacity>
+                        
+                        {showPicker && (
+                          <View className="border border-input rounded-md mt-1 overflow-hidden">
+                            <Picker
+                              ref={pickerRef}
+                              selectedValue={field.value}
+                              onValueChange={(itemValue) => {
+                                field.onChange(itemValue);
+                                setShowPicker(false);
+                              }}
+                              onBlur={() => setShowPicker(false)}
+                              style={{ 
+                                backgroundColor: 'transparent',
+                                display: showPicker ? 'flex' : 'none',
+                                height: 200,
+                              }}
+                              dropdownIconColor="#a1a1aa"
+                              prompt="Select relationship"
+                            >
+                              <Picker.Item 
+                                label="Select relationship" 
+                                value="" 
+                                enabled={false}
+                              />
+                              {RELATIONSHIP_OPTIONS.map((option) => (
+                                <Picker.Item
+                                  key={option.value}
+                                  label={option.label}
+                                  value={option.value}
+                                />
+                              ))}
+                            </Picker>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    
+                    {Platform.OS === 'ios' && (
+                      <View>
+                        <TouchableOpacity 
+                          onPress={() => setShowPicker(true)}
+                          className="border border-input rounded-md h-12 px-3 justify-center"
+                        >
+                          <Text className={field.value ? "text-foreground" : "text-muted-foreground"}>
+                            {field.value ? getRelationshipLabel(field.value) : "Select relationship"}
+                          </Text>
+                        </TouchableOpacity>
+                        
+                        <Modal
+                          visible={showPicker}
+                          transparent={true}
+                          animationType="none"
+                          onRequestClose={() => closePicker()}
+                        >
+                          <Animated.View 
+                            style={{
+                              flex: 1,
+                              backgroundColor: 'rgba(0,0,0,0.5)',
+                              opacity: fadeAnim,
+                            }}
+                          >
+                            <TouchableOpacity 
+                              activeOpacity={1} 
+                              onPress={() => closePicker()}
+                              style={{ flex: 1 }}
+                            >
+                              <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                                <TouchableOpacity 
+                                  activeOpacity={1} 
+                                  onPress={(e) => e.stopPropagation()}
+                                >
+                                  <Animated.View
+                                    style={[
+                                      {
+                                        transform: [{ translateY: slideAnim }],
+                                      },
+                                      { backgroundColor: 'white' } // Fallback color
+                                    ]}
+                                    className="bg-background"
+                                  >
+                                    <View className="flex-row justify-between border-b border-border p-4">
+                                      <TouchableOpacity onPress={() => closePicker()}>
+                                        <Text className=" font-medium text-xl">Select Relationship</Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity 
+                                        onPress={() => {
+                                          if (!field.value) {
+                                            field.onChange(RELATIONSHIP_OPTIONS[0].value);
+                                          }
+                                          closePicker();
+                                        }}
+                                      >
+                                        <Text className="text-secondary font-medium text-xl">Done</Text>
+                                      </TouchableOpacity>
+                                    </View>
+                                    
+                                    <Picker
+                                      selectedValue={field.value || RELATIONSHIP_OPTIONS[0].value}
+                                      onValueChange={(itemValue) => field.onChange(itemValue)}
+                                      style={{ 
+                                        backgroundColor: 'transparent',
+                                        height: 215,
+                                        width: '100%',
+                                      }}
+                                      itemStyle={{ 
+                                        fontSize: 18,
+                                        height: 215,
+                                      }}
+                                    >
+                                      {RELATIONSHIP_OPTIONS.map((option) => (
+                                        <Picker.Item
+                                          key={option.value}
+                                          label={option.label}
+                                          value={option.value}
+                                        />
+                                      ))}
+                                    </Picker>
+                                  </Animated.View>
+                                </TouchableOpacity>
+                              </View>
+                            </TouchableOpacity>
+                          </Animated.View>
+                        </Modal>
+                      </View>
+                    )}
                     
                     {form.formState.errors.relationship && (
                       <Text className="text-sm font-medium text-destructive">
                         {form.formState.errors.relationship.message}
                       </Text>
                     )}
-                    
-                    {/* Relationship Selection Modal */}
-                    <Modal
-                      visible={showRelationshipModal}
-                      transparent={true}
-                      animationType="slide"
-                      onRequestClose={() => setShowRelationshipModal(false)}
-                    >
-                      <View className="flex-1 justify-end bg-black/50">
-                        <View className="bg-background rounded-t-xl">
-                          <View className="p-4 border-b border-border">
-                            <Text className="text-lg font-medium text-center">Select Relationship</Text>
-                          </View>
-                          
-                          <ScrollView className="max-h-80">
-                            {RELATIONSHIP_OPTIONS.map((option) => (
-                              <TouchableOpacity
-                                key={option.value}
-                                className={`p-4 border-b border-border ${
-                                  field.value === option.value ? "bg-button/10" : ""
-                                }`}
-                                onPress={() => {
-                                  field.onChange(option.value);
-                                  setShowRelationshipModal(false);
-                                }}
-                              >
-                                <Text className="text-lg">{option.label}</Text>
-                              </TouchableOpacity>
-                            ))}
-                          </ScrollView>
-                          
-                          <TouchableOpacity
-                            className="p-4 border-t border-border"
-                            onPress={() => setShowRelationshipModal(false)}
-                          >
-                            <Text className="text-button text-center font-medium">Cancel</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </Modal>
                   </View>
                 )}
               />
@@ -173,4 +354,4 @@ export default function CaregiverInfoScreen() {
       </View>
     </SafeAreaView>
   );
-} 
+}
