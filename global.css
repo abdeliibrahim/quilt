@@ -4,6 +4,7 @@
 
 @layer base {
 	:root {
+		--button: 171 100% 9%;
 		--background: 43 20% 93%;
 		--foreground: 240 10% 3.9%;
 		--card: 43 20% 93%;
@@ -26,6 +27,7 @@
 	}
 
 	.dark:root {
+		--button: 171 100% 9%;
 		--background: 240 10% 3.9%;
 		--foreground: 0 0% 98%;
 		--card: 240 10% 3.9%;

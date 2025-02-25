@@ -8,7 +8,8 @@ export const unstable_settings = {
 };
 
 export default function AppLayout() {
-	const { colorScheme } = useColorScheme();
+	const { colorScheme, setColorScheme } = useColorScheme();
+	setColorScheme("light");
 
 	return (
 		<Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>

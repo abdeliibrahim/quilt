@@ -1,5 +1,6 @@
 export const colors = {
 	light: {
+		button: "#002C25",
 		background: "hsla(43, 20%, 93%, 1)",
 		foreground: "hsl(240, 10%, 3.9%)",
 		card: "hsla(43, 20%, 93%, 1)",
@@ -21,6 +22,7 @@ export const colors = {
 		ring: "hsla(171, 100%, 5%, 1)",
 	},
 	dark: {
+		button: "#002C25",
 		background: "hsl(240, 10%, 3.9%)",
 		foreground: "hsl(0, 0%, 98%)",
 		card: "hsl(240, 10%, 3.9%)",

@@ -207,13 +207,11 @@ export default function WelcomeScreen() {
 				<View className="mb-4 gap-y-4">
 					<Button
 						size="lg"
-						className="bg-[#002E1E] py-6 rounded-full"
 						onPress={() => {
 							router.push("/sign-up");
 						}}
 					>
 						<Text 
-							className="text-white text-lg"
 							style={{ fontFamily: fontFamily.medium }}
 						>
 							I am a caregiver or loved one
@@ -221,13 +219,12 @@ export default function WelcomeScreen() {
 					</Button>
 					<Button
 						size="lg"
-						className="bg-white border border-[#002E1E] py-6 rounded-full"
+						variant="secondary"
 						onPress={() => {
 							router.push("/sign-in");
 						}}
 					>
 						<Text 
-							className="text-[#002E1E] text-lg"
 							style={{ fontFamily: fontFamily.medium }}
 						>
 							I am receiving care
