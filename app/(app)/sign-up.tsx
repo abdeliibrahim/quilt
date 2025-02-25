@@ -1,8 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
 import * as z from "zod";
 
+import { fontFamily } from "@/app/theme/fonts";
+import { Image } from "@/components/image";
 import { SafeAreaView } from "@/components/safe-area-view";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormInput } from "@/components/ui/form";
@@ -12,6 +15,7 @@ import { useSupabase } from "@/context/supabase-provider";
 
 const formSchema = z
 	.object({
+		fullName: z.string().min(1, "Please enter your full name."),
 		email: z.string().email("Please enter a valid email address."),
 		password: z
 			.string()
@@ -38,11 +42,13 @@ const formSchema = z
 	});
 
 export default function SignUp() {
+	const router = useRouter();
 	const { signUp } = useSupabase();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
+			fullName: "",
 			email: "",
 			password: "",
 			confirmPassword: "",
@@ -51,21 +57,76 @@ export default function SignUp() {
 
 	async function onSubmit(data: z.infer<typeof formSchema>) {
 		try {
+			// Sign up the user
 			await signUp(data.email, data.password);
 
+			// Reset form and navigate to success or dashboard
 			form.reset();
+			router.push("/sign-in");
 		} catch (error: Error | any) {
 			console.log(error.message);
+			form.setError("root", { 
+				type: "manual", 
+				message: "An error occurred during sign up. Please try again." 
+			});
 		}
 	}
 
 	return (
-		<SafeAreaView className="flex-1 bg-background p-4" edges={["bottom"]}>
-			<View className="flex-1 gap-4 web:m-4">
-				<H1 className="self-start">Sign Up</H1>
+		<SafeAreaView className="flex-1 bg-background">
+			<View className="flex-1 px-8 pt-8 pb-4">
+				{/* Background pattern - similar to welcome screen */}
+				<View className="absolute top-0 right-0 opacity-10">
+					<View className="flex flex-row flex-wrap">
+						{Array.from({ length: 28 }).map((_, i) => (
+							<View 
+								key={i} 
+								className="w-12 h-12 rounded-lg m-1"
+								style={{ 
+									backgroundColor: i < 10 ? '#8A9A5B' : 'transparent',
+									opacity: i < 10 ? 0.2 + (i * 0.08) : 0
+								}} 
+							/>
+						))}
+					</View>
+				</View>
+
+				{/* Logo */}
+				<View className="items-center justify-center mb-6">
+					<Image
+						source={require("@/assets/logo.svg")}
+						className="w-[150] h-[52]"
+						contentFit="contain"
+					/>
+				</View>
+
+				{/* Back button and title */}
+				<View className="flex-row items-center mb-6">
+					<Button
+						variant="ghost"
+						className="mr-2 p-0"
+						onPress={() => router.back()}
+					>
+						<Text className="text-[#006B5B] text-lg">←</Text>
+					</Button>
+					<H1 className="self-start">Caregiver Sign Up</H1>
+				</View>
 
 				<Form {...form}>
-					<View className="gap-4">
+					<View className="gap-4 mb-6">
+						<FormField
+							control={form.control}
+							name="fullName"
+							render={({ field }) => (
+								<FormInput
+									label="Full Name"
+									placeholder="Full Name"
+									autoCapitalize="words"
+									autoCorrect={false}
+									{...field}
+								/>
+							)}
+						/>
 						<FormField
 							control={form.control}
 							name="email"
@@ -111,20 +172,42 @@ export default function SignUp() {
 						/>
 					</View>
 				</Form>
-			</View>
-			<Button
-				size="default"
-				variant="default"
-				onPress={form.handleSubmit(onSubmit)}
-				disabled={form.formState.isSubmitting}
-				className="web:m-4"
-			>
-				{form.formState.isSubmitting ? (
-					<ActivityIndicator size="small" />
-				) : (
-					<Text>Sign Up</Text>
+
+				{/* Error message */}
+				{form.formState.errors.root && (
+					<Text className="text-red-500 mb-4">
+						{form.formState.errors.root.message}
+					</Text>
 				)}
-			</Button>
+
+				{/* Sign up button */}
+				<Button
+					size="lg"
+					onPress={form.handleSubmit(onSubmit)}
+					disabled={form.formState.isSubmitting}
+					className="mb-4"
+				>
+					{form.formState.isSubmitting ? (
+						<ActivityIndicator size="small" />
+					) : (
+						<Text>Sign Up</Text>
+					)}
+				</Button>
+
+				{/* Sign in link */}
+				<View className="flex-row justify-center mt-2">
+					<Text className="text-[#002E1E]">
+						Already have an account?{" "}
+					</Text>
+					<Text 
+						className="text-[#006B5B]"
+						style={{ fontFamily: fontFamily.semibold }}
+						onPress={() => router.push("/sign-in")}
+					>
+						Sign in
+					</Text>
+				</View>
+			</View>
 		</SafeAreaView>
 	);
 }

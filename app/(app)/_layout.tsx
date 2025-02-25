@@ -18,20 +18,39 @@ export default function AppLayout() {
 			<Stack.Screen
 				name="sign-up"
 				options={{
-					presentation: "modal",
-					headerShown: true,
-					headerTitle: "Sign Up",
-					headerStyle: {
-						backgroundColor:
-							colorScheme === "dark"
-								? colors.dark.background
-								: colors.light.background,
-					},
-					headerTintColor:
-						colorScheme === "dark"
-							? colors.dark.foreground
-							: colors.light.foreground,
+					presentation: "card",
+					headerShown: false,
 					gestureEnabled: true,
+					animation: "slide_from_right",
+				}}
+			/>
+			<Stack.Screen
+				name="sign-up-recipient"
+				options={{
+					presentation: "card",
+					headerShown: false,
+					gestureEnabled: true,
+					animation: "slide_from_right",
+					animationDuration: 200,
+				}}
+			/>
+			<Stack.Screen
+				name="caregiver-onboarding"
+				options={{
+					presentation: "card",
+					headerShown: false,
+					gestureEnabled: true,
+					animation: "slide_from_right",
+					animationDuration: 200,
+				}}
+			/>
+			<Stack.Screen
+				name="help"
+				options={{
+					presentation: "card",
+					headerShown: false,
+					gestureEnabled: true,
+					animation: "slide_from_right",
 				}}
 			/>
 			<Stack.Screen
