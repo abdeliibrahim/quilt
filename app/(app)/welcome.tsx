@@ -118,7 +118,7 @@ export default function WelcomeScreen() {
 					/>
 					<P 
 						className="text-center text-[#002E1E] text-xl"
-						style={{ fontFamily: fontFamily.regular }}
+						
 					>
 						Weaving memories for those with Alzheimer's
 					</P>
@@ -232,7 +232,6 @@ export default function WelcomeScreen() {
 						}}
 					>
 						<Text 
-							style={{ fontFamily: fontFamily.medium }}
 						>
 							I am a caregiver or loved one
 						</Text>
@@ -245,7 +244,6 @@ export default function WelcomeScreen() {
 						}}
 					>
 						<Text 
-							style={{ fontFamily: fontFamily.medium }}
 						>
 							I am receiving care
 						</Text>
@@ -256,7 +254,7 @@ export default function WelcomeScreen() {
 				<View className="flex-row justify-center mt-2 mb-4">
 					<Text 
 						className="text-[#002E1E]"
-						style={{ fontFamily: fontFamily.regular }}
+						
 					>
 						Already have an account?{" "}
 					</Text>

@@ -35,7 +35,7 @@ const buttonVariants = cva(
 );
 
 const buttonTextVariants = cva(
-	"web:whitespace-nowrap text-lg native:text-base font-medium text-foreground web:transition-colors",
+	"web:whitespace-nowrap text-xl native:text-base font-medium text-foreground web:transition-colors",
 	{
 		variants: {
 			variant: {
@@ -50,7 +50,7 @@ const buttonTextVariants = cva(
 			size: {
 				default: "",
 				sm: "",
-				lg: "native:text-lg",
+				lg: "native:text-xl web:text-lg",
 				icon: "",
 			},
 		},
@@ -92,3 +92,4 @@ Button.displayName = "Button";
 
 export { Button, buttonTextVariants, buttonVariants };
 export type { ButtonProps };
+
