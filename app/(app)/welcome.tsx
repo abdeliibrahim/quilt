@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Dimensions, Image as RNImage, View } from "react-native";
+import { Dimensions, Platform, Image as RNImage, View } from "react-native";
 import Animated, {
 	Easing,
 	cancelAnimation,
@@ -39,6 +39,13 @@ const CAROUSEL_IMAGES = [
 const CARD_WIDTH = SCREEN_WIDTH * 0.35;
 const CARD_HEIGHT = 200;
 const CARD_SPACING = 12;
+
+// Different gradient settings for iOS and Android
+const GRADIENT_CONFIG = {
+	width: Platform.OS === 'ios' ? SCREEN_WIDTH * 0.25 : SCREEN_WIDTH * 0.2,
+	leftEnd: Platform.OS === 'ios' ? 0.35 : 0.3,
+	rightStart: Platform.OS === 'ios' ? 0.6 : 0.65,
+};
 
 export default function WelcomeScreen() {
 	const router = useRouter();
@@ -125,23 +132,31 @@ export default function WelcomeScreen() {
 						style={{ 
 							width: SCREEN_WIDTH,
 							marginLeft: -32, // Offset the parent's padding (8px * 4)
+							overflow: 'hidden', // Ensure content doesn't overflow
 						}}
 					>
 						<View className="h-[200] justify-center">
-							{/* Left gradient overlay */}
-							<LinearGradient
-								colors={['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0)']}
-								start={{ x: 0, y: 0 }}
-								end={{ x: 0.15, y: 0 }}
+							{/* Left gradient mask */}
+							<View
 								style={{
 									position: 'absolute',
 									left: 0,
 									top: 0,
 									bottom: 0,
-									width: 60,
+									width: GRADIENT_CONFIG.width,
 									zIndex: 10,
 								}}
-							/>
+							>
+								<LinearGradient
+									colors={['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0)']}
+									start={{ x: 0, y: 0 }}
+									end={{ x: GRADIENT_CONFIG.leftEnd, y: 0 }}
+									style={{
+										width: '100%',
+										height: '100%',
+									}}
+								/>
+							</View>
 							
 							<Animated.View 
 								style={[
@@ -169,20 +184,27 @@ export default function WelcomeScreen() {
 								))}
 							</Animated.View>
 							
-							{/* Right gradient overlay */}
-							<LinearGradient
-								colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']}
-								start={{ x: 0.85, y: 0 }}
-								end={{ x: 1, y: 0 }}
+							{/* Right gradient mask */}
+							<View
 								style={{
 									position: 'absolute',
 									right: 0,
 									top: 0,
 									bottom: 0,
-									width: 60,
+									width: GRADIENT_CONFIG.width,
 									zIndex: 10,
 								}}
-							/>
+							>
+								<LinearGradient
+									colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']}
+									start={{ x: GRADIENT_CONFIG.rightStart, y: 0 }}
+									end={{ x: 1, y: 0 }}
+									style={{
+										width: '100%',
+										height: '100%',
+									}}
+								/>
+							</View>
 						</View>
 					</View>
 				</View>
