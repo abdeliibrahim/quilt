@@ -148,7 +148,7 @@ export default function WelcomeScreen() {
 								}}
 							>
 								<LinearGradient
-									colors={['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0)']}
+									colors={['hsla(43, 20%, 93%, 1)', 'hsla(43, 20%, 93%, 0)']}
 									start={{ x: 0, y: 0 }}
 									end={{ x: GRADIENT_CONFIG.leftEnd, y: 0 }}
 									style={{
@@ -196,7 +196,7 @@ export default function WelcomeScreen() {
 								}}
 							>
 								<LinearGradient
-									colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 1)']}
+									colors={['hsla(43, 20%, 93%, 0)', 'hsla(43, 20%, 93%, 1)']}
 									start={{ x: GRADIENT_CONFIG.rightStart, y: 0 }}
 									end={{ x: 1, y: 0 }}
 									style={{
