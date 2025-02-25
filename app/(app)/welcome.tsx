@@ -117,7 +117,7 @@ export default function WelcomeScreen() {
 						contentFit="contain"
 					/>
 					<P 
-						className="text-center text-[#002E1E] text-lg"
+						className="text-center text-[#002E1E] text-xl"
 						style={{ fontFamily: fontFamily.regular }}
 					>
 						Weaving memories for those with Alzheimer's
@@ -213,16 +213,14 @@ export default function WelcomeScreen() {
 				<View className="mt-4 mb-6">
 					<H2 
 						className="text-left text-2xl text-[#002E1E] border-0 pb-0"
-						style={{ fontFamily: fontFamily.medium }}
 					>
 						Every day is a Quilt.
 					</H2>
-					<P 
-						className="text-left text-2xl text-[#006B5B]"
-						style={{ fontFamily: fontFamily.medium }}
+					<H2 
+						className="text-left text-2xl text-[#006B5B] border-0 pb-0"
 					>
 						Let's weave yours together.
-					</P>
+					</H2>
 				</View>
 
 				{/* Buttons */}
