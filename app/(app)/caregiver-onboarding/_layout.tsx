@@ -344,6 +344,7 @@ export default function CaregiverOnboardingLayout() {
                     <Button
                       size="lg"
                       onPress={handleContinue}
+                      // TODO:  uncomment this
                       // disabled={!isFormValid}
                     >
                       <Text className="text-white text-lg font-medium">Continue</Text>

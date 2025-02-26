@@ -41,7 +41,8 @@
           "resizeMode": "cover",
           "image": "./assets/splash-dark.png"
         }
-      }
+      },
+      "package": "com.anonymous.Quilt"
     },
     "experiments": {
       "typedRoutes": true

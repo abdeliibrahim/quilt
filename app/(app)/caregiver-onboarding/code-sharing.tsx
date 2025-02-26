@@ -1,15 +1,14 @@
+import { SafeAreaView } from '@/components/safe-area-view';
+import { Text } from '@/components/ui/text';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Share, TouchableOpacity, View } from 'react-native';
-
-import { SafeAreaView } from '@/components/safe-area-view';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
 
 export default function CodeSharingScreen() {
   const router = useRouter();
   const inviteCode = "DDIFEST25"; // In a real app, this would be generated or fetched
+  const [copied, setCopied] = useState(false);
   
   const handleShare = async () => {
     try {
@@ -21,7 +20,6 @@ export default function CodeSharingScreen() {
     }
   };
 
-
   return (
     <SafeAreaView className="flex-1 bg-transparent">
       <View className="flex-1 px-4 py-4 justify-center items-center">
@@ -30,31 +28,36 @@ export default function CodeSharingScreen() {
         </Text>
         
         <View className="flex flex-col items-center gap-y-4">
-        <Text className="text-md text-center text-muted-foreground">
-          They'll need this code to join in their Quilt app
-        </Text>
-        
-        <View className="w-full max-w-xs bg-muted p-6 rounded-xl mb-6 items-center">
-          <Text className="text-3xl font-bold tracking-widest mb-4">
-            {inviteCode}
+          <Text className="text-md text-center text-muted-foreground">
+            They'll need this code to join in their Quilt app
           </Text>
-          <TouchableOpacity 
-            onPress={handleShare}
-            className="flex-row items-center bg-button px-4 py-2 rounded-full"
-          >
-            <Ionicons name="share-outline" size={20} color="white" />
-            <Text className="text-white ml-2">Share Code</Text>
-          </TouchableOpacity>
-          </View>
           
+          <View className="w-full max-w-xs bg-muted p-6 rounded-xl mb-6 items-center">
+            <View className="flex-row items-center justify-center">
+              <Text className="text-3xl font-bold tracking-widest mb-4">
+                {inviteCode}
+              </Text>
+              {/* <TouchableOpacity 
+                onPress={handleCopyCode}
+                className="ml-2"
+              >
+                <Ionicons name={copied ? "checkmark" : "copy-outline"} size={24} color={copied ? "green" : "#666"} />
+              </TouchableOpacity> */}
+            </View>
+            <TouchableOpacity 
+              onPress={handleShare}
+              className="flex-row items-center bg-button px-4 py-2 rounded-full"
+            >
+              <Ionicons name="share-outline" size={20} color="white" />
+              <Text className="text-white ml-2">Share Code</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         
         <Text className="text-md text-center text-muted-foreground mb-8 max-w-xs">
           Share this code with your care recipient so they can connect to their Quilt
         </Text>
       </View>
-      
-
     </SafeAreaView>
   );
-} 
+}
