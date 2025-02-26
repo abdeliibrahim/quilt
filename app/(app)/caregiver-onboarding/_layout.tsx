@@ -84,7 +84,7 @@ export default function CaregiverOnboardingLayout() {
     } else if (pathname.includes('account-creation')) {
       progressValue = 0.3;
     } else if (pathname.includes('code-sharing')) {
-      progressValue = 0.45;
+      progressValue = 1;
     } else if (pathname.includes('account-verification')) {
       progressValue = 0.6;
     } else if (pathname.includes('recipient-info')) {
@@ -141,6 +141,7 @@ export default function CaregiverOnboardingLayout() {
       } else if (pathname.includes('recipient-info')) {
         router.push('/caregiver-onboarding/interface-selection');
       } else if (pathname.includes('interface-selection')) {
+        router.push('/caregiver-onboarding/code-sharing');
         // Final step - navigate to main app
         // router.push('/home');
       }
@@ -329,9 +330,9 @@ export default function CaregiverOnboardingLayout() {
               <SafeAreaView edges={['bottom']} className="bg-background">
                 <View className="border-t border-border">
                   {/* Progress bar */}
-                  <View className="w-full rounded-r-full bg-background h-2">
+                  <View className={`w-full rounded-r-full bg-background h-2 ${pathname.includes('code-sharing') ? 'rounded-none' : 'rounded-r-full'}`}>
                     <Animated.View 
-                      className="h-2 bg-[#006B5B] rounded-r-full" 
+                      className={`h-2 bg-[#006B5B] ${pathname.includes('code-sharing') ? 'rounded-none' : 'rounded-r-full'}`} 
                       style={{ width: progressAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: ['0%', '100%']

@@ -87,7 +87,7 @@ export default function AccountCreationScreen() {
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        className="flex-1 justify-end px-4 -top-10" 
+        className="flex-1 justify-center px-4 top-32" 
       >
         <View className="pb-36">
           <Text className="text-2xl font-medium mb-6">Next, create an account to stay connected</Text>

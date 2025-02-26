@@ -1,107 +1,69 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
-
+import { Image } from "@/components/image";
 import { SafeAreaView } from '@/components/safe-area-view';
-import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 
 export default function InterfaceSelectionScreen() {
   const router = useRouter();
-  const [selectedInterface, setSelectedInterface] = useState<'default' | 'easy' | null>(null);
+  const [selectedInterface, setSelectedInterface] = useState<'default' | 'easy' | null>('default');
   
-  const handleContinue = () => {
-    if (selectedInterface) {
-      // In a real app, you would save this preference
-      console.log('Selected interface:', selectedInterface);
-      router.push('/(app)/(protected)');
-    }
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-transparent">
-      <View className="flex-1 px-4 py-4">
-        <Text className="text-2xl font-bold mb-6">
+      <View className="flex-1 justify-end px-4 py-4">
+        <View className="bg-background">
+        <Text className="text-2xl font-medium mb-6 ">
           How would you like their Quilt to look and feel?
         </Text>
         
-        <View className="space-y-6">
+        <View className="flex-row space-x-4 justify-between bg-background">
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => setSelectedInterface('default')}
-            className={`border rounded-xl p-4 ${
-              selectedInterface === 'default' ? 'border-button bg-button/10' : 'border-border'
+            className={`rounded-xl p-4 flex-1 border border-transparent ${
+              selectedInterface === 'default' ? 'border  border-button/20' : ''
             }`}
           >
-            <View className="flex-row items-center mb-3">
-              <View 
-                className={`w-6 h-6 rounded-full border ${
-                  selectedInterface === 'default' 
-                    ? 'border-button bg-button' 
-                    : 'border-muted-foreground'
-                } mr-3 items-center justify-center`}
-              >
-                {selectedInterface === 'default' && (
-                  <View className="w-3 h-3 bg-white rounded-full" />
-                )}
-              </View>
-              <Text className="font-medium text-lg">Default</Text>
+            <View className="items-center justify-center">
+              <Image source={require('@/assets/onboarding/default-interface.svg')} className="w-[121] h-[155] bg-background" />
             </View>
             
-            <View className="bg-muted rounded-lg overflow-hidden h-40 items-center justify-center">
-              {/* Placeholder for default interface preview */}
-              <Text className="text-muted-foreground">Standard design with subtle elements</Text>
+            <View className="flex-row items-center justify-center mt-4">
+              <Text className="font-semibold text-xl">Default</Text>
             </View>
             
-            <Text className="text-muted-foreground mt-2">
-              Clean, modern interface with standard text size and contrast
+            <Text className="text-muted-foreground mt-2 text-center">
+              Modern interface with standard text and contrast
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => setSelectedInterface('easy')}
-            className={`border rounded-xl p-4 ${
-              selectedInterface === 'easy' ? 'border-button bg-button/10' : 'border-border'
+            className={`rounded-xl p-4 flex-1 border border-transparent ${
+              selectedInterface === 'easy' ? 'border  border-button/20' : ''
             }`}
           >
-            <View className="flex-row items-center mb-3">
-              <View 
-                className={`w-6 h-6 rounded-full border ${
-                  selectedInterface === 'easy' 
-                    ? 'border-button bg-button' 
-                    : 'border-muted-foreground'
-                } mr-3 items-center justify-center`}
-              >
-                {selectedInterface === 'easy' && (
-                  <View className="w-3 h-3 bg-white rounded-full" />
-                )}
-              </View>
-              <Text className="font-medium text-lg">Easy</Text>
+            <View className="items-center justify-center">
+              <Image source={require('@/assets/onboarding/easy-interface.svg')} className="w-[118] h-[155] bg-background" />
             </View>
             
-            <View className="bg-muted rounded-lg overflow-hidden h-40 items-center justify-center">
-              {/* Placeholder for easy interface preview */}
-              <Text className="text-muted-foreground">Larger elements with high contrast</Text>
+            <View className="flex-row items-center justify-center mt-4">
+              <Text className="font-semibold text-xl">Easy</Text>
             </View>
             
-            <Text className="text-muted-foreground mt-2">
-              Larger text, high contrast colors, and bigger buttons for easier use
+            <Text className="text-muted-foreground mt-2 text-center">
+              Larger text, high contrast colors, and bigger buttons
             </Text>
           </TouchableOpacity>
         </View>
         
-        <Text className="text-sm text-center text-muted-foreground mt-6">
+        <Text className="text-sm text-center text-muted-foreground mt-8">
           Don't worry—you can always change this later
         </Text>
-      </View>
-      
-      <View className="p-4 border-t border-border">
-        <Button 
-          onPress={handleContinue}
-          disabled={!selectedInterface}
-        >
-          <Text>Continue</Text>
-        </Button>
+        </View>
       </View>
     </SafeAreaView>
   );
-} 
+}

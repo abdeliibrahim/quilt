@@ -23,7 +23,7 @@ export default function PromptRecipientSetupScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-transparent">
-      <View className="flex-1 px-4 py-4 justify-center items-center">
+      <View className="flex-1 px-4 py-4 justify-center items-center -top-10">
         <View className="flex flex-col gap-3 bg-background">
         <Text className="text-2xl font-medium mb-6">
           Does the person receiving care have a Quilt account?
