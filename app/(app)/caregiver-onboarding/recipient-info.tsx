@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { ScrollView, View } from 'react-native';
@@ -24,7 +24,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function RecipientInfoScreen() {
   const router = useRouter();
-  
+  const pathname = usePathname();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -95,8 +95,8 @@ export default function RecipientInfoScreen() {
                 name="email"
                 render={({ field }) => (
                   <FormInput
-                    label="Email (Optional)"
-                    placeholder="Enter their email address"
+                    label="Email"
+                    placeholder="Enter their email"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     {...field}
@@ -113,15 +113,6 @@ export default function RecipientInfoScreen() {
           </Form>
         </View>
       </ScrollView>
-      
-      <View className="p-4 border-t border-border">
-        <Button
-          onPress={form.handleSubmit(onSubmit)}
-          disabled={form.formState.isSubmitting}
-        >
-          <Text>Continue</Text>
-        </Button>
-      </View>
     </SafeAreaView>
   );
 } 

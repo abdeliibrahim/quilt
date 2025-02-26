@@ -35,9 +35,14 @@ export const useFormValidation = () => useContext(FormValidationContext);
 // Helper to determine if a screen comes after account creation
 const isPostAccountCreation = (path: string) => {
   return path.includes('code-sharing') || 
-         path.includes('account-verification') ||
-         path.includes('recipient-info') ||
-         path.includes('interface-selection');
+        //  path.includes('prompt-recipient-setup') ||
+         path.includes('account-verification') 
+        //  path.includes('recipient-info') ||
+        //  path.includes('interface-selection');
+};
+
+const hideContinueButton = (path: string) => {
+  return path.includes('prompt-recipient-setup');
 };
 
 export default function CaregiverOnboardingLayout() {
@@ -128,8 +133,8 @@ export default function CaregiverOnboardingLayout() {
       if (pathname.includes('caregiver-info')) {
         router.push('/caregiver-onboarding/account-creation');
       } else if (pathname.includes('account-creation')) {
-        router.push('/caregiver-onboarding/code-sharing');
-      } else if (pathname.includes('code-sharing')) {
+        router.push('/caregiver-onboarding/prompt-recipient-setup');
+      } else if (pathname.includes('prompt-recipient-setup')) {
         router.push('/caregiver-onboarding/account-verification');
       } else if (pathname.includes('account-verification')) {
         router.push('/caregiver-onboarding/recipient-info');
@@ -254,6 +259,14 @@ export default function CaregiverOnboardingLayout() {
               }} 
             />
             <CustomStack.Screen 
+              name="prompt-recipient-setup" 
+              options={{ 
+                headerBackTitle: '',
+                presentation: 'card',
+                gestureEnabled: true,
+              }} 
+            />
+            <CustomStack.Screen 
               name="account-verification" 
               options={{ 
                 headerBackTitle: '',
@@ -266,7 +279,7 @@ export default function CaregiverOnboardingLayout() {
               options={{ 
                 headerBackTitle: '',
                 presentation: 'card',
-                gestureEnabled: false,
+                gestureEnabled: true,
               }} 
             />
             <CustomStack.Screen 
@@ -274,14 +287,14 @@ export default function CaregiverOnboardingLayout() {
               options={{ 
                 headerBackTitle: '',
                 presentation: 'card',
-                gestureEnabled: false,
+                gestureEnabled: true,
               }} 
             />
           </CustomStack>
         </View>
         
         {/* Footer with progress bar and continue button - with KeyboardAvoidingView */}
-        {pathname !== '/caregiver-onboarding' && pathname !== '/caregiver-onboarding/index' && (
+        {pathname !== '/caregiver-onboarding' && pathname !== '/caregiver-onboarding/index' && !hideContinueButton(pathname) && (
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'position' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
@@ -330,7 +343,7 @@ export default function CaregiverOnboardingLayout() {
                     <Button
                       size="lg"
                       onPress={handleContinue}
-                      disabled={!isFormValid}
+                      // disabled={!isFormValid}
                     >
                       <Text className="text-white text-lg font-medium">Continue</Text>
                     </Button>
