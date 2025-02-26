@@ -18,7 +18,7 @@ import { z } from 'zod';
 import { SafeAreaView } from '@/components/safe-area-view';
 import { Form, FormField, FormInput, FormLabel } from '@/components/ui/form';
 import { Text } from '@/components/ui/text';
-import { useFormValidation } from './_layout';
+import { useCaregiverRegistration, useFormValidation } from './_layout';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -40,7 +40,8 @@ export default function CaregiverInfoScreen() {
   const router = useRouter();
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<Picker<string>>(null);
-  const { setIsValid,  } = useFormValidation();
+  const { setIsValid } = useFormValidation();
+  const { setCaregiverInfo, caregiverInfo } = useCaregiverRegistration();
   const [formLoaded, setFormLoaded] = useState(false);
   
   // Animation values
@@ -51,9 +52,9 @@ export default function CaregiverInfoScreen() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      relationship: '',
+      firstName: caregiverInfo.firstName,
+      lastName: caregiverInfo.lastName,
+      relationship: caregiverInfo.relationship,
     },
     mode: 'onChange',
   });
@@ -61,7 +62,7 @@ export default function CaregiverInfoScreen() {
   useFocusEffect(
     useCallback(() => {
       setIsValid(form.formState.isValid);
-    }, [])
+    }, [form.formState.isValid, setIsValid])
   );
 
   // Handle animations when picker visibility changes
@@ -144,13 +145,17 @@ export default function CaregiverInfoScreen() {
   useEffect(() => {
     const subscription = form.watch((data) => {
       if (form.formState.isValid) {
-        // In a real app, you would save this data to state or context
-        console.log('Caregiver info:', data);
+        // Save caregiver info to context
+        setCaregiverInfo({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          relationship: data.relationship || '',
+        });
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, setCaregiverInfo]);
 
   // Get the selected relationship label
   const getRelationshipLabel = (value: string) => {
@@ -275,6 +280,7 @@ export default function CaregiverInfoScreen() {
                                   field.onChange(itemValue);
                                   setShowPicker(false);
                                 }}
+                                className="bg-transparent"
                                 onBlur={() => setShowPicker(false)}
                                 style={{ 
                                   backgroundColor: 'transparent',
@@ -311,7 +317,7 @@ export default function CaregiverInfoScreen() {
                             }}
                             className="border border-input bg-white rounded-xl h-12 px-3 justify-center"
                           >
-                            <Text className={field.value ? "text-foreground" : "text-muted-foreground" + ' text-lg'}>
+                            <Text className={field.value ? "text-foreground text-lg" : "text-muted-foreground" + ' text-lg'}>
                               {field.value ? getRelationshipLabel(field.value) : "Select relationship"}
                             </Text>
                           </TouchableOpacity>
@@ -371,9 +377,12 @@ export default function CaregiverInfoScreen() {
                                           backgroundColor: 'transparent',
                                           height: 215,
                                           width: '100%',
+                                          fontSize: 24,
                                         }}
+
+
                                         itemStyle={{ 
-                                          fontSize: 18,
+                                          fontSize: 20,
                                           height: 215,
                                         }}
                                       >

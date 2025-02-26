@@ -2,13 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Linking, Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, Platform, Pressable, View } from 'react-native';
 import { z } from 'zod';
 
 import { SafeAreaView } from '@/components/safe-area-view';
 import { Form, FormField, FormInput } from '@/components/ui/form';
 import { Text } from '@/components/ui/text';
-import { useFormValidation } from './_layout';
+import { registerCaregiver } from '@/services/auth';
+import { useCaregiverRegistration, useFormValidation } from './_layout';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -26,15 +27,24 @@ export default function AccountCreationScreen() {
   const router = useRouter();
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { setIsValid } = useFormValidation();
+  const { 
+    setAccountInfo, 
+    accountInfo, 
+    caregiverInfo, 
+    isRegistering, 
+    setIsRegistering,
+    registrationError,
+    setRegistrationError
+  } = useCaregiverRegistration();
   const [formLoaded, setFormLoaded] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: '',
+      email: accountInfo.email,
+      phone: accountInfo.phone,
+      password: accountInfo.password,
+      confirmPassword: accountInfo.password,
     },
     mode: 'onChange',
   });
@@ -71,6 +81,22 @@ export default function AccountCreationScreen() {
     };
   }, [form.formState.isValid, agreedToTerms, setIsValid, formLoaded]);
 
+  // Store form data in context when valid
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      if (form.formState.isValid) {
+        // Save account info to context
+        setAccountInfo({
+          email: data.email || '',
+          phone: data.phone || '',
+          password: data.password || '',
+        });
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, setAccountInfo]);
+
   // Handle checking/unchecking terms agreement
   const toggleTermsAgreement = () => {
     const newValue = !agreedToTerms;
@@ -82,12 +108,54 @@ export default function AccountCreationScreen() {
     }
   };
 
+  // Handle registration when the continue button is pressed
+  useEffect(() => {
+    const handleRegistration = async () => {
+      if (isRegistering && form.formState.isValid && agreedToTerms) {
+        try {
+          // Clear any previous errors
+          setRegistrationError(null);
+          
+          // Get the form data
+          const formData = form.getValues();
+          
+          // Register the caregiver
+          await registerCaregiver(
+            caregiverInfo,
+            {
+              email: formData.email,
+              phone: formData.phone,
+              password: formData.password,
+            }
+          );
+          
+          // Registration successful, continue to next screen
+          setIsRegistering(false);
+          router.push('/caregiver-onboarding/prompt-recipient-setup');
+        } catch (error) {
+          // Handle registration error
+          setIsRegistering(false);
+          setRegistrationError(error instanceof Error ? error.message : 'Registration failed');
+          
+          // Show error alert
+          Alert.alert(
+            'Registration Failed',
+            error instanceof Error ? error.message : 'An error occurred during registration. Please try again.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
+    };
+    
+    handleRegistration();
+  }, [isRegistering, form, agreedToTerms, caregiverInfo, router, setIsRegistering, setRegistrationError]);
+
   return (
     <SafeAreaView className="flex-1 bg-transparent">
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        className="flex-1 justify-center px-4 top-32" 
+        className="flex-1 justify-center px-4 top-20" 
       >
         <View className="pb-36">
           <Text className="text-2xl font-medium mb-6">Next, create an account to stay connected</Text>
@@ -175,11 +243,17 @@ export default function AccountCreationScreen() {
                   </Text>
                 </View>
               </View>
-              
-              {form.formState.errors.root && (
-                <Text className="text-sm font-medium text-destructive">
-                  {form.formState.errors.root.message}
+              {registrationError && (
+                <Text className="text-sm font-medium text-destructive mt-2">
+                  {registrationError}
                 </Text>
+              )}
+              
+              {isRegistering && (
+                <View className="items-center justify-center mt-4">
+                  <ActivityIndicator size="small" color="#006B5B" />
+                  <Text className="text-sm text-muted-foreground mt-2">Creating your account...</Text>
+                </View>
               )}
             </View>
           </Form>

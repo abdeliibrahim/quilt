@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from '@/components/safe-area-view';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { AccountInfo, CaregiverInfo } from '@/services/auth';
 import { CustomStack } from '../../../CustomStack';
 
 // Create a context for form validation and navigation tracking
@@ -30,7 +31,31 @@ export const FormValidationContext = createContext<FormValidationContextType>({
   previousScreen: null,
 });
 
+// Create a context for storing caregiver registration data
+interface CaregiverRegistrationContextType {
+  caregiverInfo: CaregiverInfo;
+  setCaregiverInfo: (info: CaregiverInfo) => void;
+  accountInfo: AccountInfo;
+  setAccountInfo: (info: AccountInfo) => void;
+  isRegistering: boolean;
+  setIsRegistering: (isRegistering: boolean) => void;
+  registrationError: string | null;
+  setRegistrationError: (error: string | null) => void;
+}
+
+export const CaregiverRegistrationContext = createContext<CaregiverRegistrationContextType>({
+  caregiverInfo: { firstName: '', lastName: '', relationship: '' },
+  setCaregiverInfo: () => {},
+  accountInfo: { email: '', phone: '', password: '' },
+  setAccountInfo: () => {},
+  isRegistering: false,
+  setIsRegistering: () => {},
+  registrationError: null,
+  setRegistrationError: () => {},
+});
+
 export const useFormValidation = () => useContext(FormValidationContext);
+export const useCaregiverRegistration = () => useContext(CaregiverRegistrationContext);
 
 // Helper to determine if a screen comes after account creation
 const isPostAccountCreation = (path: string) => {
@@ -53,6 +78,20 @@ export default function CaregiverOnboardingLayout() {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const [isFormValid, setIsFormValid] = useState(false);
   const previousPathRef = useRef<string | null>(null);
+  
+  // Caregiver registration state
+  const [caregiverInfo, setCaregiverInfo] = useState<CaregiverInfo>({ 
+    firstName: '', 
+    lastName: '', 
+    relationship: '' 
+  });
+  const [accountInfo, setAccountInfo] = useState<AccountInfo>({ 
+    email: '', 
+    phone: '', 
+    password: '' 
+  });
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registrationError, setRegistrationError] = useState<string | null>(null);
 
   // Add keyboard listeners
   useEffect(() => {
@@ -133,7 +172,10 @@ export default function CaregiverOnboardingLayout() {
       if (pathname.includes('caregiver-info')) {
         router.push('/caregiver-onboarding/account-creation');
       } else if (pathname.includes('account-creation')) {
-        router.push('/caregiver-onboarding/prompt-recipient-setup');
+        // Start the registration process
+        setIsRegistering(true);
+        // The registration process is handled in the account-creation.tsx file
+        // It will navigate to the next screen when complete
       } else if (pathname.includes('prompt-recipient-setup')) {
         router.push('/caregiver-onboarding/account-verification');
       } else if (pathname.includes('account-verification')) {
@@ -154,207 +196,215 @@ export default function CaregiverOnboardingLayout() {
       setIsValid: setIsFormValid,
       previousScreen: previousPathRef.current,
     }}>
-      <View className="flex-1 bg-background">
-        {/* Background pattern */}
-        <BackgroundPattern />
-        
-        {/* Stack navigator without KeyboardAvoidingView to keep header fixed */}
-        <View className="flex-1">
-          <CustomStack
-            screenOptions={{
-              headerShown: true,
-              headerTitle: '',
-              headerShadowVisible: false,
-              headerStyle: { 
-                backgroundColor: 'transparent', // Make header transparent
-              },
-              headerLeft: ({ canGoBack }) => {
-                return (
-                  <View style={{ width: 50, paddingLeft: 16, justifyContent: 'center' }}>
-                    {canGoBack && !isPostAccountCreation(pathname) ? (
-                      <TouchableOpacity onPress={handleBackPress}>
-                        <Ionicons name="chevron-back" size={24} color="#006B5B" />
-                      </TouchableOpacity>
-                    ) : null}
+      <CaregiverRegistrationContext.Provider value={{
+        caregiverInfo,
+        setCaregiverInfo,
+        accountInfo,
+        setAccountInfo,
+        isRegistering,
+        setIsRegistering,
+        registrationError,
+        setRegistrationError,
+      }}>
+        <View className="flex-1 bg-background">
+          {/* Background pattern */}
+          <BackgroundPattern />
+          
+          {/* Stack navigator without KeyboardAvoidingView to keep header fixed */}
+          <View className="flex-1">
+            <CustomStack
+              screenOptions={{
+                headerShown: true,
+                headerTitle: '',
+                headerShadowVisible: false,
+                headerStyle: { 
+                  backgroundColor: 'transparent', // Make header transparent
+                },
+                headerLeft: ({ canGoBack }) => {
+                  return (
+                    <View style={{ width: 50, paddingLeft: 16, justifyContent: 'center' }}>
+                      {canGoBack && !isPostAccountCreation(pathname) ? (
+                        <TouchableOpacity onPress={handleBackPress}>
+                          <Ionicons name="chevron-back" size={24} color="#006B5B" />
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
+                  );
+                },
+                headerRight: () => (
+                  <View style={{ width: 90, paddingRight: 16, justifyContent: 'center', alignItems: 'flex-end' }}>
+                    <Image
+                      source={require("@/assets/logo.svg")}
+                      className="w-[72] h-[52]"
+                      contentFit="contain"
+                    />
                   </View>
-                );
-              },
-              headerRight: () => (
-                <View style={{ width: 90, paddingRight: 16, justifyContent: 'center', alignItems: 'flex-end' }}>
-                  <Image
-                    source={require("@/assets/logo.svg")}
-                    className="w-[72] h-[52]"
-                    contentFit="contain"
-                  />
-                </View>
-              ),
-              headerTitleAlign: 'center',
-              cardStyle: { 
-                backgroundColor: 'transparent', // Make content background transparent
-              },
-              gestureEnabled: !isPostAccountCreation(pathname),
-              gestureDirection: 'horizontal',
-              // Default transition spec for all screens
-              transitionSpec: {
-                open: {
-                  animation: 'timing',
-                  config: { duration: 200 },
+                ),
+                headerTitleAlign: 'center',
+                cardStyle: { 
+                  backgroundColor: 'transparent', // Make content background transparent
                 },
-                close: {
-                  animation: 'timing',
-                  config: { duration: 200 },
-                },
-              },
-              // Default card style interpolator for horizontal slide
-              cardStyleInterpolator: ({ current, layouts }) => {
-                return {
-                  cardStyle: {
-                    transform: [
-                      {
-                        translateX: current.progress.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [layouts.screen.width, 0],
-                        }),
-                      },
-                    ],
+                gestureEnabled: !isPostAccountCreation(pathname),
+                gestureDirection: 'horizontal',
+                // Default transition spec for all screens
+                transitionSpec: {
+                  open: {
+                    animation: 'timing',
+                    config: { duration: 200 },
                   },
-                };
-              },
-            }}
-          >
-            <CustomStack.Screen 
-              name="index" 
-              options={{ 
-                headerShown: false,
-              }} 
-            />
-            <CustomStack.Screen 
-              name="caregiver-info" 
-              options={{ 
-                headerBackTitle: '',
-                gestureEnabled: true,
-                presentation: 'card',
-                cardStyle: { 
-                  backgroundColor: 'transparent', // Make content background transparent
+                  close: {
+                    animation: 'timing',
+                    config: { duration: 200 },
+                  },
                 },
-              }} 
-            />
-            <CustomStack.Screen 
-              name="account-creation" 
-              options={{ 
-                headerBackTitle: '',
-                gestureEnabled: true,
-                presentation: 'card',
-                cardStyle: { 
-                  backgroundColor: 'transparent', // Make content background transparent
+                // Default card style interpolator for horizontal slide
+                cardStyleInterpolator: ({ current, layouts }) => {
+                  return {
+                    cardStyle: {
+                      transform: [
+                        {
+                          translateX: current.progress.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [layouts.screen.width, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  };
                 },
-              }} 
-            />
-            <CustomStack.Screen 
-              name="code-sharing" 
-              options={{ 
-                headerBackTitle: '',
-                presentation: 'card',
-                gestureEnabled: false,
-              }} 
-            />
-            <CustomStack.Screen 
-              name="prompt-recipient-setup" 
-              options={{ 
-                headerBackTitle: '',
-                presentation: 'card',
-                gestureEnabled: true,
-              }} 
-            />
-            <CustomStack.Screen 
-              name="account-verification" 
-              options={{ 
-                headerBackTitle: '',
-                presentation: 'card',
-                gestureEnabled: false,
-              }} 
-            />
-            <CustomStack.Screen 
-              name="recipient-info" 
-              options={{ 
-                headerBackTitle: '',
-                presentation: 'card',
-                gestureEnabled: true,
-              }} 
-            />
-            <CustomStack.Screen 
-              name="interface-selection" 
-              options={{ 
-                headerBackTitle: '',
-                presentation: 'card',
-                gestureEnabled: true,
-              }} 
-            />
-          </CustomStack>
-        </View>
-        
-        {/* Footer with progress bar and continue button - with KeyboardAvoidingView */}
-        {pathname !== '/caregiver-onboarding' && pathname !== '/caregiver-onboarding/index' && !hideContinueButton(pathname) && (
+              }}
+            >
+              <CustomStack.Screen 
+                name="index" 
+                options={{ 
+                  headerShown: false,
+                }} 
+              />
+              <CustomStack.Screen 
+                name="caregiver-info" 
+                options={{ 
+                  headerBackTitle: '',
+                  gestureEnabled: true,
+                  presentation: 'card',
+                  cardStyle: { 
+                    backgroundColor: 'transparent', // Make content background transparent
+                  },
+                }} 
+              />
+              <CustomStack.Screen 
+                name="account-creation" 
+                options={{ 
+                  headerBackTitle: '',
+                  gestureEnabled: true,
+                  presentation: 'card',
+                  cardStyle: { 
+                    backgroundColor: 'transparent', // Make content background transparent
+                  },
+                }} 
+              />
+              <CustomStack.Screen 
+                name="code-sharing" 
+                options={{ 
+                  headerBackTitle: '',
+                  presentation: 'card',
+                  gestureEnabled: false,
+                }} 
+              />
+              <CustomStack.Screen 
+                name="prompt-recipient-setup" 
+                options={{ 
+                  headerBackTitle: '',
+                  presentation: 'card',
+                  gestureEnabled: true,
+                }} 
+              />
+              <CustomStack.Screen 
+                name="account-verification" 
+                options={{ 
+                  headerBackTitle: '',
+                  presentation: 'card',
+                  gestureEnabled: false,
+                }} 
+              />
+              <CustomStack.Screen 
+                name="recipient-info" 
+                options={{ 
+                  headerBackTitle: '',
+                  presentation: 'card',
+                  gestureEnabled: true,
+                }} 
+              />
+              <CustomStack.Screen 
+                name="interface-selection" 
+                options={{ 
+                  headerBackTitle: '',
+                  presentation: 'card',
+                  gestureEnabled: true,
+                }} 
+              />
+            </CustomStack>
+          </View>
+          
+          {/* Continue button */}
+          {pathname !== '/caregiver-onboarding' && pathname !== '/caregiver-onboarding/index' && !hideContinueButton(pathname) && (
           <KeyboardAvoidingView
+                        className="px-4 "
             behavior={Platform.OS === 'ios' ? 'position' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
             {keyboardVisible ? (
               // Regular view without safe area when keyboard is visible
-              <View className="border-t border-border bg-background">
-                {/* Progress bar */}
-                <View className="w-full rounded-r-full bg-background h-2">
-                  <Animated.View 
-                    className="h-2 bg-[#006B5B] rounded-r-full" 
-                    style={{ width: progressAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0%', '100%']
-                    })}}
-                  />
+              <View className="bg-transparent pb-4">
+                <View className="mb-4">
+                  <View className="h-2 bg-muted rounded-full overflow-hidden">
+                    <Animated.View 
+                      className="h-full bg-button rounded-full"
+                      style={{ width: progressAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0%', '100%'],
+                      }) }}
+                    />
+                  </View>
                 </View>
                 
-                <View className="p-4">
-                  <Button
-                    size="lg"
-                    onPress={handleContinue}
-                    disabled={!isFormValid}
-                    className={`h-14 rounded-full ${isFormValid ? 'bg-[#0B2B26]' : 'bg-[#0B2B26]/50'}`}
-                  >
-                    <Text className="text-white text-lg font-medium">Continue</Text>
-                  </Button>
-                </View>
+                <Button 
+                  size="lg"
+                  onPress={handleContinue}
+                  disabled={!isFormValid}
+                  className={`h-14 ${!isFormValid ? 'opacity-50' : ''}`}
+                >
+                  <Text className="text-white font-medium text-lg">Continue</Text>
+                </Button>
               </View>
             ) : (
               // SafeAreaView when keyboard is not visible
-              <SafeAreaView edges={['bottom']} className="bg-background">
-                <View className="border-t border-border">
-                  {/* Progress bar */}
-                  <View className={`w-full rounded-r-full bg-background h-2 ${pathname.includes('code-sharing') ? 'rounded-none' : 'rounded-r-full'}`}>
+              <SafeAreaView edges={['bottom']} className="bg-transparent">
+                <View className="mb-4">
+                  <View className="h-2 bg-muted rounded-full overflow-hidden">
                     <Animated.View 
-                      className={`h-2 bg-[#006B5B] ${pathname.includes('code-sharing') ? 'rounded-none' : 'rounded-r-full'}`} 
+                      className="h-full bg-button rounded-full"
                       style={{ width: progressAnim.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ['0%', '100%']
-                      })}}
+                        outputRange: ['0%', '100%'],
+                      }) }}
                     />
                   </View>
-                  
-                  <View className="p-4">
-                    <Button
-                      size="lg"
-                      onPress={handleContinue}
-                      // TODO:  uncomment this
-                      // disabled={!isFormValid}
-                    >
-                      <Text className="text-white text-lg font-medium">Continue</Text>
-                    </Button>
-                  </View>
                 </View>
+                
+                <Button 
+                  size="lg"
+                  onPress={handleContinue}
+                  disabled={!isFormValid}
+                  className={`h-14 ${!isFormValid ? 'opacity-50' : ''}`}
+                >
+                  <Text className="text-white font-medium text-lg">Continue</Text>
+                </Button>
               </SafeAreaView>
             )}
           </KeyboardAvoidingView>
         )}
-      </View>
+        </View>
+      </CaregiverRegistrationContext.Provider>
     </FormValidationContext.Provider>
   );
 }
