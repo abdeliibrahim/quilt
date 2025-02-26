@@ -169,27 +169,26 @@ export default function CaregiverOnboardingLayout() {
                 backgroundColor: 'transparent', // Make header transparent
               },
               headerLeft: ({ canGoBack }) => {
-                // Only show back button if:
-                // 1. We can go back
-                // 2. We're not on a post-account-creation screen
-                if (canGoBack && !isPostAccountCreation(pathname)) {
-                  return (
-                    <TouchableOpacity onPress={handleBackPress}>
-                      <Ionicons name="chevron-back" size={24} color="#006B5B" />
-                    </TouchableOpacity>
-                  );
-                }
-                return null;
+                return (
+                  <View style={{ width: 50, paddingLeft: 16, justifyContent: 'center' }}>
+                    {canGoBack && !isPostAccountCreation(pathname) ? (
+                      <TouchableOpacity onPress={handleBackPress}>
+                        <Ionicons name="chevron-back" size={24} color="#006B5B" />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                );
               },
               headerRight: () => (
-                <View className="h-12 flex justify-center items-start -md z-10">
-                <Image
-                source={require("@/assets/logo.svg")}
-                className="w-[72] h-[52] mr-4"
-                contentFit="contain"
-              />
+                <View style={{ width: 90, paddingRight: 16, justifyContent: 'center', alignItems: 'flex-end' }}>
+                  <Image
+                    source={require("@/assets/logo.svg")}
+                    className="w-[72] h-[52]"
+                    contentFit="contain"
+                  />
                 </View>
-                ),
+              ),
+              headerTitleAlign: 'center',
               cardStyle: { 
                 backgroundColor: 'transparent', // Make content background transparent
               },
@@ -358,4 +357,4 @@ export default function CaregiverOnboardingLayout() {
       </View>
     </FormValidationContext.Provider>
   );
-} 
+}

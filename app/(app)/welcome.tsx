@@ -224,7 +224,7 @@ export default function WelcomeScreen() {
 					<Button
 						size="lg"
 						onPress={() => {
-							router.push("/caregiver-onboarding");
+							router.push("/caregiver-onboarding/caregiver-info");
 						}}
 					>
 						<Text 
