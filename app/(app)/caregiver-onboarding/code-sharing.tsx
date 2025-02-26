@@ -26,7 +26,7 @@ export default function CodeSharingScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-transparent">
       <View className="flex-1 px-4 py-4 justify-center items-center">
         <Text className="text-2xl font-bold text-center mb-2">
           Your care recipient's Quilt is prepared!

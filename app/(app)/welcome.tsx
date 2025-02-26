@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Dimensions, Platform, Image as RNImage, View } from "react-native";
+import { Dimensions, Image as RNImage, View } from "react-native";
 import Animated, {
 	Easing,
 	cancelAnimation,
@@ -97,14 +97,12 @@ export default function WelcomeScreen() {
 					<View className="flex flex-row flex-wrap">
 						<Image
 							source={require("@/assets/blocks-pattern-short.svg")}
-							className="w-[400] h-[400]"
+							className={`w-[${SCREEN_WIDTH}] h-[400]`}
 							contentFit="cover"
 						/>
 					</View>
 				</View>
-			{/* <View className="flex pt-8 pb-4 justify-center">
-				
-			</View> */}
+
 			<View className="flex flex-1 px-8 pt-8 pb-4 justify-center">
 	
 				{/* Logo and tagline */}

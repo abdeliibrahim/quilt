@@ -19,7 +19,7 @@ export default function InterfaceSelectionScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-transparent">
       <View className="flex-1 px-4 py-4">
         <Text className="text-2xl font-bold mb-6">
           How would you like their Quilt to look and feel?

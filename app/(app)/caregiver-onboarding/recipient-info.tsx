@@ -42,7 +42,7 @@ export default function RecipientInfoScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-transparent">
       <ScrollView className="flex-1 px-4">
         <View className="py-4">
           <Text className="text-2xl font-bold mb-6">

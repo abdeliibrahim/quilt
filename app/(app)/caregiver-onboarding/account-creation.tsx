@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Linking, Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, Pressable, View } from 'react-native';
 import { z } from 'zod';
 
 import { SafeAreaView } from '@/components/safe-area-view';
-import { Button } from '@/components/ui/button';
 import { Form, FormField, FormInput } from '@/components/ui/form';
 import { Text } from '@/components/ui/text';
+import { useFormValidation } from './_layout';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -25,6 +25,8 @@ type FormValues = z.infer<typeof formSchema>;
 export default function AccountCreationScreen() {
   const router = useRouter();
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const { setIsValid } = useFormValidation();
+  const [formLoaded, setFormLoaded] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -34,30 +36,64 @@ export default function AccountCreationScreen() {
       password: '',
       confirmPassword: '',
     },
+    mode: 'onChange',
   });
 
-  const onSubmit = (data: FormValues) => {
-    if (!agreedToTerms) {
-      form.setError('root', {
-        type: 'manual',
-        message: 'You must agree to the Terms of Service and Privacy Policy'
-      });
-      return;
+  // Check for form validity on mount (for returning to the page)
+  useEffect(() => {
+    // Check if form already has values
+    const currentValues = form.getValues();
+    
+    const isFormComplete = 
+      currentValues.email.trim() !== '' && 
+      currentValues.phone.trim() !== '' && 
+      currentValues.password.trim() !== '' && 
+      currentValues.confirmPassword.trim() !== '' &&
+      currentValues.password === currentValues.confirmPassword;
+    
+    if (isFormComplete && agreedToTerms) {
+      setIsValid(true);
     }
     
-    // In a real app, you would save this data to state or context
-    console.log('Account creation data:', data);
-    router.push('/caregiver-onboarding/code-sharing');
+    setFormLoaded(true);
+  }, [form, setIsValid, agreedToTerms]);
+
+  // Update form validation state in context when form validity or terms agreement changes
+  useEffect(() => {
+    if (formLoaded) {
+      // Form is valid only if all fields are valid AND terms are agreed to
+      setIsValid(form.formState.isValid && agreedToTerms);
+    }
+    
+    return () => {
+      // We don't reset form validity when unmounting anymore
+      // This allows the form to stay valid when returning via back navigation
+    };
+  }, [form.formState.isValid, agreedToTerms, setIsValid, formLoaded]);
+
+  // Handle checking/unchecking terms agreement
+  const toggleTermsAgreement = () => {
+    const newValue = !agreedToTerms;
+    setAgreedToTerms(newValue);
+    
+    // Clear root error when agreeing to terms
+    if (newValue && form.formState.errors.root) {
+      form.clearErrors('root');
+    }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1 px-4">
-        <View className="py-4">
-          <Text className="text-2xl font-bold mb-6">Next, create an account to stay connected</Text>
+    <SafeAreaView className="flex-1 bg-transparent">
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        className="flex-1 justify-end px-4 -top-10" 
+      >
+        <View className="pb-36">
+          <Text className="text-2xl font-medium mb-6">Next, create an account to stay connected</Text>
           
           <Form {...form}>
-            <View className="space-y-6">
+          <View className="flex flex-col  gap-3 bg-background rounded-lg ">
               <FormField
                 control={form.control}
                 name="email"
@@ -111,9 +147,9 @@ export default function AccountCreationScreen() {
                 )}
               />
               
-              <View className="flex-row items-start mt-4">
+              <View className="flex-row items-start mt-2">
                 <Pressable 
-                  onPress={() => setAgreedToTerms(!agreedToTerms)}
+                  onPress={toggleTermsAgreement}
                   className="w-6 h-6 rounded-md border border-input mr-2 items-center justify-center"
                 >
                   {agreedToTerms && (
@@ -148,16 +184,7 @@ export default function AccountCreationScreen() {
             </View>
           </Form>
         </View>
-      </ScrollView>
-      
-      <View className="p-4 border-t border-border">
-        <Button
-          onPress={form.handleSubmit(onSubmit)}
-          disabled={form.formState.isSubmitting}
-        >
-          <Text>Continue</Text>
-        </Button>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 } 

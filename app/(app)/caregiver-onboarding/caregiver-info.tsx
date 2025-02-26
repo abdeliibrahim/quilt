@@ -1,25 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { 
-  Animated, 
-  BackHandler, 
-  Keyboard, 
+import {
+  Animated,
+  BackHandler,
+  Keyboard,
   KeyboardAvoidingView,
-  Modal, 
-  Platform, 
-  ScrollView, 
-  TouchableOpacity, 
-  View 
+  Modal,
+  Platform,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { z } from 'zod';
 
 import { SafeAreaView } from '@/components/safe-area-view';
-import { Button } from '@/components/ui/button';
 import { Form, FormField, FormInput, FormLabel } from '@/components/ui/form';
 import { Text } from '@/components/ui/text';
+import { useFormValidation } from './_layout';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -41,12 +40,30 @@ export default function CaregiverInfoScreen() {
   const router = useRouter();
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<Picker<string>>(null);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const { setIsValid,  } = useFormValidation();
+  const [formLoaded, setFormLoaded] = useState(false);
   
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(300)).current;
   
+  // Log when screen becomes active
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      relationship: '',
+    },
+    mode: 'onChange',
+  });
+  
+  useFocusEffect(
+    useCallback(() => {
+      setIsValid(form.formState.isValid);
+    }, [])
+  );
+
   // Handle animations when picker visibility changes
   useEffect(() => {
     if (showPicker) {
@@ -94,37 +111,46 @@ export default function CaregiverInfoScreen() {
     return () => backHandler.remove();
   }, [router, showPicker]);
 
-  // Add keyboard listeners
+  // Check for form validity on mount (for returning to the page)
   useEffect(() => {
-    const keyboardWillShow = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => setKeyboardVisible(true)
-    );
-    const keyboardWillHide = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setKeyboardVisible(false)
-    );
+      // Only validate initial form state if we're not resetting
+      const currentValues = form.getValues();
+      
+      const isFormComplete = 
+        currentValues.firstName.trim() !== '' && 
+        currentValues.lastName.trim() !== '' && 
+        currentValues.relationship.trim() !== '';
+      
+      if (isFormComplete) {
+        setIsValid(true);
+      }
+    
+    setFormLoaded(true);
+  }, [form, setIsValid]);
 
+  // Update form validation state in context whenever form validity changes
+  useEffect(() => {
+    if (formLoaded) {
+      setIsValid(form.formState.isValid);
+    }
+    
     return () => {
-      keyboardWillShow.remove();
-      keyboardWillHide.remove();
+      // We don't reset form validity when unmounting anymore
+      // This allows the form to stay valid when returning via back navigation
     };
-  }, []);
-  
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      relationship: '',
-    },
-  });
+  }, [form.formState.isValid, setIsValid, formLoaded]);
 
-  const onSubmit = (data: FormValues) => {
-    // In a real app, you would save this data to state or context
-    console.log('Caregiver info:', data);
-    router.push('/caregiver-onboarding/account-creation');
-  };
+  // Store form data in global state or context when valid
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      if (form.formState.isValid) {
+        // In a real app, you would save this data to state or context
+        console.log('Caregiver info:', data);
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   // Get the selected relationship label
   const getRelationshipLabel = (value: string) => {
@@ -152,20 +178,13 @@ export default function CaregiverInfoScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-transparent">
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        className="flex-1 justify-end px-4 -top-10" 
       >
-        <ScrollView 
-          className="flex-1 px-4"
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            flexGrow: 1,
-          }}
-        >
-          <View className="py-4">
+        <View className="pb-36">
             <Text className="text-2xl font-medium mb-6">First, tell us about yourself</Text>
             
             <Form {...form}>
@@ -201,8 +220,7 @@ export default function CaregiverInfoScreen() {
                   name="relationship"
                   render={({ field }) => (
                     <View className="space-y-2">
-                      <FormLabel nativeID={''}
-                      >Relationship to care recipient</FormLabel>
+                      <FormLabel nativeID={''}>Relationship to care recipient</FormLabel>
                       
                       {Platform.OS === 'web' && (
                         <View className="border border-input rounded-md overflow-hidden">
@@ -386,22 +404,6 @@ export default function CaregiverInfoScreen() {
                 />
               </View>
             </Form>
-          </View>
-        </ScrollView>
-        
-        <View 
-          className={`p-4 border-t border-border ${
-            Platform.OS === 'ios' && keyboardVisible ? 'mb-0' : ''
-          }`}
-          style={Platform.OS === 'android' ? { marginBottom: keyboardVisible ? 0 : undefined } : undefined}
-        >
-          <Button
-          size={'lg'}
-            onPress={form.handleSubmit(onSubmit)}
-            disabled={!form.formState.isValid || form.formState.isSubmitting}
-          >
-            <Text>Continue</Text>
-          </Button>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

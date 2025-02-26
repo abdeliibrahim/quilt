@@ -8,7 +8,7 @@ import {
 	Noop,
 	useFormContext,
 } from "react-hook-form";
-import { View } from "react-native";
+import { View, Platform } from "react-native";
 import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
 import { Input } from "./input";
@@ -97,7 +97,7 @@ const FormLabel = React.forwardRef<
 >(({ className, nativeID: _nativeID, ...props }, ref) => {
 	const { error, formItemNativeID } = useFormField();
 
-	return (
+	return Platform.OS == 'web' ? (
 		<Label
 			ref={ref}
 			className={cn(
@@ -108,7 +108,7 @@ const FormLabel = React.forwardRef<
 			nativeID={formItemNativeID}
 			{...props}
 		/>
-	);
+	): <></>;
 });
 FormLabel.displayName = "FormLabel";
 
@@ -205,7 +205,7 @@ const FormInput = React.forwardRef<
 
 	return (
 		<FormItem>
-			{!!label && (
+			{!!label && Platform.OS == 'web' && (
 				<FormLabel nativeID={formItemNativeID} onPress={handleOnLabelPress}>
 					{label}
 				</FormLabel>

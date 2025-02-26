@@ -19,15 +19,15 @@ export default function AccountVerificationScreen() {
     }
   };
 
-  const onSubmit = (data: FormValues) => {
-    // In a real app, you would verify the code
-    console.log('Verification code:', data.code);
-    router.push('/caregiver-onboarding/recipient-info');
-  };
+  // const onSubmit = (data: FormValues) => {
+  //   // In a real app, you would verify the code
+  //   console.log('Verification code:', data.code);
+  //   router.push('/caregiver-onboarding/recipient-info');
+  // };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 px-4 py-4">
+    <SafeAreaView className="flex-1 bg-transparent">
+      {/* <View className="flex-1 px-4 py-4">
         <Text className="text-2xl font-bold mb-8">
           Does the person receiving care already have an account?
         </Text>
@@ -96,7 +96,7 @@ export default function AccountVerificationScreen() {
         >
           <Text>Continue</Text>
         </Button>
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 } 
