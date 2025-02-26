@@ -15,7 +15,9 @@ import {
 import { SafeAreaView } from '@/components/safe-area-view';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { useSupabase } from '@/context/supabase-provider';
 import { AccountInfo, CaregiverInfo } from '@/services/auth';
+import { CaregiverOnboardingStatus, getOnboardingStatus, markFinalStep, markOnboardingComplete } from '@/services/profile';
 import { CustomStack } from '../../../CustomStack';
 
 // Create a context for form validation and navigation tracking
@@ -78,6 +80,15 @@ export default function CaregiverOnboardingLayout() {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const [isFormValid, setIsFormValid] = useState(false);
   const previousPathRef = useRef<string | null>(null);
+  
+  // Get user from Supabase context
+  const { user } = useSupabase();
+  
+  // Get onboarding status from user
+  const [onboardingStatus, setOnboardingStatus] = useState<CaregiverOnboardingStatus | null>(null);
+
+  console.log('onboardingStatus layout', onboardingStatus);
+  // Check if onboarding is complete
   
   // Caregiver registration state
   const [caregiverInfo, setCaregiverInfo] = useState<CaregiverInfo>({ 
@@ -181,13 +192,18 @@ export default function CaregiverOnboardingLayout() {
       } else if (pathname.includes('account-verification')) {
         router.push('/caregiver-onboarding/recipient-info');
       } else if (pathname.includes('recipient-info')) {
+        
         router.push('/caregiver-onboarding/interface-selection');
       } else if (pathname.includes('interface-selection')) {
         router.push('/caregiver-onboarding/code-sharing');
-        // Final step - navigate to main app
-        // router.push('/home');
+      } else if (pathname.includes('code-sharing')) {
+        if (user) {
+          markOnboardingComplete(user.id);
+        }
       }
+        // Final step - navigate to main app
     }, 100);
+    
   };
 
   return (
@@ -373,7 +389,7 @@ export default function CaregiverOnboardingLayout() {
                   disabled={!isFormValid}
                   className={`h-14 ${!isFormValid ? 'opacity-50' : ''}`}
                 >
-                  <Text className="text-white font-medium text-lg">Continue</Text>
+                  <Text className="text-white font-medium text-lg">{onboardingStatus?.final_step ? 'Finish' : 'Continue'}</Text>
                 </Button>
               </View>
             ) : (
@@ -394,10 +410,10 @@ export default function CaregiverOnboardingLayout() {
                 <Button 
                   size="lg"
                   onPress={handleContinue}
-                  disabled={!isFormValid}
-                  className={`h-14 ${!isFormValid ? 'opacity-50' : ''}`}
+                  disabled={pathname.includes('code-sharing') || pathname.includes('account-verification') ? false : !isFormValid}
+                  // className={`h-14 ${!isFormValid ? 'opacity-50' : ''}`}
                 >
-                  <Text className="text-white font-medium text-lg">Continue</Text>
+                  <Text className="text-white font-medium text-lg">{pathname.includes('code-sharing') ? 'Finish' : 'Continue'}</Text>
                 </Button>
               </SafeAreaView>
             )}

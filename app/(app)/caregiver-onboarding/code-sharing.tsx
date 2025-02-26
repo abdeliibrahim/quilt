@@ -1,15 +1,36 @@
 import { SafeAreaView } from '@/components/safe-area-view';
 import { Text } from '@/components/ui/text';
+import { useSupabase } from '@/context/supabase-provider';
+import { markFinalStep } from '@/services/profile';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Share, TouchableOpacity, View } from 'react-native';
 
 export default function CodeSharingScreen() {
   const router = useRouter();
   const inviteCode = "DDIFEST25"; // In a real app, this would be generated or fetched
   const [copied, setCopied] = useState(false);
+  const { user } = useSupabase();
   
+  // Mark onboarding as complete when this screen is reached
+  useEffect(() => {
+    if (user) {
+      // Update the onboarding status in the database
+      markFinalStep(user.id)
+        .then(success => {
+          if (success) {
+            console.log('Onboarding marked as complete');
+          } else {
+            console.error('Failed to mark onboarding as complete');
+          }
+        })
+        .catch(error => {
+          console.error('Error marking onboarding as complete:', error);
+        });
+    }
+  }, [user]);
+
   const handleShare = async () => {
     try {
       await Share.share({

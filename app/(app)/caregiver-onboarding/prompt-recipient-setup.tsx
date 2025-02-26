@@ -38,6 +38,7 @@ export default function PromptRecipientSetupScreen() {
           <Text>Yes, I have an invitation code</Text>
          </Button>
         </View>
+
         
          </View>
       </View>

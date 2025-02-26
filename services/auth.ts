@@ -42,6 +42,9 @@ export async function registerCaregiver(
             throw authError;
         }
 
+        // The profile will be automatically created by the database trigger
+        // with the default onboarding status
+
         // Return the user data
         return authData.user;
     } catch (error) {

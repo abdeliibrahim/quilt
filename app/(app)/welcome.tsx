@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { useRouter, usePathname } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Dimensions, Image as RNImage, View } from "react-native";
 import Animated, {
 	Easing,
@@ -18,6 +18,9 @@ import { SafeAreaView } from "@/components/safe-area-view";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { H2, P } from "@/components/ui/typography";
+import { supabase } from "@/config/supabase";
+import { useSupabase } from "@/context/supabase-provider";
+import { CaregiverOnboardingStatus, getOnboardingStatus } from "@/services/profile";
 
 // Get screen width for animation calculations
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -50,12 +53,46 @@ const GRADIENT_CONFIG = {
 export default function WelcomeScreen() {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
+	const { user } = useSupabase();
+	const [isOnboarding, setIsOnboarding] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 	
 	// Animation value for the carousel
 	const translateX = useSharedValue(0);
 	
 	// Calculate total width of all images
 	const totalWidth = CAROUSEL_IMAGES.length * (CARD_WIDTH + CARD_SPACING);
+	
+	// Check onboarding status when screen loads
+	useEffect(() => {
+		async function checkOnboardingStatus() {
+			if (!user) {
+				setIsLoading(false);
+				return;
+			}
+
+			try {
+				const { data: profile, error } = await supabase
+					.from('profiles')
+					.select('onboarding_status')
+					.eq('id', user.id)
+					.single();
+
+				if (error) throw error;
+
+				const onboardingStatus = profile?.onboarding_status as CaregiverOnboardingStatus;
+				setIsOnboarding(!onboardingStatus?.onboarding_complete);
+				
+			} catch (error) {
+				console.error('Error checking onboarding status:', error);
+				setIsOnboarding(true); // Default to onboarding on error
+			} finally {
+				setIsLoading(false);
+			}
+		}
+
+		checkOnboardingStatus();
+	}, [user]);
 	
 	// Set up the continuous animation
 	useEffect(() => {
@@ -89,6 +126,20 @@ export default function WelcomeScreen() {
 			transform: [{ translateX: translateX.value }],
 		};
 	});
+
+	const pathname = usePathname();
+	const [onboardingStatus, setOnboardingStatus] = useState<CaregiverOnboardingStatus | null>(null);
+	useEffect(() => {
+	  const fetchOnboardingStatus = async () => {
+		if (user) {
+		  const status = await getOnboardingStatus(user.id);
+		  setOnboardingStatus(status);
+		}
+	  };
+	  fetchOnboardingStatus();
+	}, [user, pathname]);
+	
+	console.log('onboardingStatus', onboardingStatus);
 
 	return (
 		<SafeAreaView className="flex flex-1 bg-background">
@@ -221,47 +272,86 @@ export default function WelcomeScreen() {
 
 				{/* Buttons */}
 				<View className="mb-4 gap-y-4">
-					<Button
-						size="lg"
-						onPress={() => {
-							router.push("/caregiver-onboarding/caregiver-info");
-						}}
-					>
-						<Text 
-						>
-							I am a caregiver or loved one
-						</Text>
-					</Button>
-					<Button
-						size="lg"
-						variant="secondary"
-						onPress={() => {
-							router.push("/(app)/sign-up-recipient");
-						}}
-					>
-						<Text 
-						>
-							I am receiving care
-						</Text>
-					</Button>
+					{!isLoading && (
+						<>
+							{isOnboarding && user ? (
+								// Show continue onboarding button for incomplete onboarding
+								<Button
+									size="lg"
+									onPress={() => {
+										if (user) {
+											// Get the current onboarding status from state
+											
+
+													if (onboardingStatus?.account_created) {
+														router.push('/caregiver-onboarding/prompt-recipient-setup');
+													} else if (onboardingStatus?.patient_connected) {
+														router.push('/caregiver-onboarding/interface-selection');
+													} else if (onboardingStatus?.final_step) {
+														router.push('/caregiver-onboarding/code-sharing');
+													} else {
+														router.push('/caregiver-onboarding/caregiver-info');
+													}
+										}
+									}}
+								>
+									<Text>Continue onboarding</Text>
+								</Button>
+							) : (
+								// Show regular buttons for non-authenticated users
+								<>
+									<Button
+										size="lg"
+										onPress={() => {
+											router.push("/caregiver-onboarding/caregiver-info");
+										}}
+									>
+										<Text>I am a caregiver or loved one</Text>
+									</Button>
+									<Button
+										size="lg"
+										variant="secondary"
+										onPress={() => {
+											router.push("/(app)/sign-up-recipient");
+										}}
+									>
+										<Text>I am receiving care</Text>
+									</Button>
+								</>
+							)}
+						</>
+					)}
 				</View>
 
-				{/* Sign in link */}
-				<View className="flex-row justify-center mt-2 mb-4">
-					<Text 
-						className="text-[#002E1E]"
-						
-					>
-						Already have an account?{" "}
-					</Text>
-					<Text 
-						className="text-[#006B5B]"
-						style={{ fontFamily: fontFamily.semibold }}
-						onPress={() => router.push("/sign-in")}
-					>
-						Sign in
-					</Text>
-				</View>
+				{/* Sign in link - only show if not authenticated */}
+				{!user && (
+					<View className="flex-row justify-center mt-2 mb-4">
+						<Text className="text-[#002E1E]">
+							Already have an account?{" "}
+						</Text>
+						<Text 
+							className="text-[#006B5B]"
+							style={{ fontFamily: fontFamily.semibold }}
+							onPress={() => router.push("/sign-in")}
+						>
+							Sign in
+						</Text>
+					</View>
+				)}
+
+				{/* Sign out button - only show if authenticated */}
+				{user && (
+					<View className="mt-2 mb-4 flex flex-row justify-center">
+						<Text
+							className="text-destructive"
+							onPress={() => {
+								supabase.auth.signOut();
+							}}
+						>
+							<Text className="text-destructive">Sign out</Text>
+						</Text>
+					</View>
+				)}
 			</View>
 		</SafeAreaView>
 	);
