@@ -72,6 +72,15 @@
         "asset": "./assets/fonts/proximanova_semibold.otf",
         "family": "ProximaNova-Semibold"
       }
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "da2f646a-8189-454f-ad9f-43d64912483c"
+      }
+    },
+    "owner": "abdelibrahim"
   }
 }
