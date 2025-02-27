@@ -1,6 +1,7 @@
 # Quilt
 
-![quilt-hero](https://github.com/user-attachments/assets/17f7e52f-de78-4287-8f19-546b4d0c82c5)
+![HERO IMAGE](https://github.com/user-attachments/assets/bd8b8932-ca8a-43e6-a0b9-cfba9ab43cb9)
+
 
 Quilt is a mobile app that enables caretakers and loved ones of Alzheimer’s patients to curate images, sounds, and other moments from the patients’ day for their preservation and retrospection.
 
