@@ -33,12 +33,10 @@ export default function SignIn() {
 
 	async function onSubmit(data: z.infer<typeof formSchema>) {
 		try {
-			 await signInWithPassword(data.email, data.password);
-
-	
+			await signInWithPassword(data.email, data.password);
 
 			// if (response.session) {
-				router.replace("/(app)/welcome");
+			router.replace("/(app)/welcome");
 			// }
 
 			form.reset();

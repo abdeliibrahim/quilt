@@ -97,7 +97,7 @@ const FormLabel = React.forwardRef<
 >(({ className, nativeID: _nativeID, ...props }, ref) => {
 	const { error, formItemNativeID } = useFormField();
 
-	return Platform.OS == 'web' ? (
+	return Platform.OS == "web" ? (
 		<Label
 			ref={ref}
 			className={cn(
@@ -108,7 +108,9 @@ const FormLabel = React.forwardRef<
 			nativeID={formItemNativeID}
 			{...props}
 		/>
-	): <></>;
+	) : (
+		<></>
+	);
 });
 FormLabel.displayName = "FormLabel";
 
@@ -205,7 +207,7 @@ const FormInput = React.forwardRef<
 
 	return (
 		<FormItem>
-			{!!label && Platform.OS == 'web' && (
+			{!!label && Platform.OS == "web" && (
 				<FormLabel nativeID={formItemNativeID} onPress={handleOnLabelPress}>
 					{label}
 				</FormLabel>

@@ -65,9 +65,9 @@ export default function SignUp() {
 			router.push("/sign-in");
 		} catch (error: Error | any) {
 			console.log(error.message);
-			form.setError("root", { 
-				type: "manual", 
-				message: "An error occurred during sign up. Please try again." 
+			form.setError("root", {
+				type: "manual",
+				message: "An error occurred during sign up. Please try again.",
 			});
 		}
 	}
@@ -79,13 +79,13 @@ export default function SignUp() {
 				<View className="absolute top-0 right-0 opacity-10">
 					<View className="flex flex-row flex-wrap">
 						{Array.from({ length: 28 }).map((_, i) => (
-							<View 
-								key={i} 
+							<View
+								key={i}
 								className="w-12 h-12 rounded-lg m-1"
-								style={{ 
-									backgroundColor: i < 10 ? '#8A9A5B' : 'transparent',
-									opacity: i < 10 ? 0.2 + (i * 0.08) : 0
-								}} 
+								style={{
+									backgroundColor: i < 10 ? "#8A9A5B" : "transparent",
+									opacity: i < 10 ? 0.2 + i * 0.08 : 0,
+								}}
 							/>
 						))}
 					</View>
@@ -196,10 +196,8 @@ export default function SignUp() {
 
 				{/* Sign in link */}
 				<View className="flex-row justify-center mt-2">
-					<Text className="text-[#002E1E]">
-						Already have an account?{" "}
-					</Text>
-					<Text 
+					<Text className="text-[#002E1E]">Already have an account? </Text>
+					<Text
 						className="text-[#006B5B]"
 						style={{ fontFamily: fontFamily.semibold }}
 						onPress={() => router.push("/sign-in")}

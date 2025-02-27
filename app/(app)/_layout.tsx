@@ -8,18 +8,18 @@ export const unstable_settings = {
 	initialRouteName: "(root)",
 };
 
-
 export default function AppLayout() {
 	const { colorScheme, setColorScheme } = useColorScheme();
 	setColorScheme("light");
 
 	const cannotGoBack = (path: string) => {
-		return path.includes('code-sharing') || 
-			   path.includes('account-verification') ||
-			   path.includes('recipient-info') ||
-			   path.includes('interface-selection')
-	  };
-
+		return (
+			path.includes("code-sharing") ||
+			path.includes("account-verification") ||
+			path.includes("recipient-info") ||
+			path.includes("interface-selection")
+		);
+	};
 
 	return (
 		<CustomStack screenOptions={{ headerShown: false, gestureEnabled: false }}>
@@ -33,11 +33,11 @@ export default function AppLayout() {
 					gestureEnabled: true,
 					transitionSpec: {
 						open: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 300 },
 						},
 						close: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 300 },
 						},
 					},
@@ -65,11 +65,11 @@ export default function AppLayout() {
 					gestureEnabled: true,
 					transitionSpec: {
 						open: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 200 },
 						},
 						close: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 200 },
 						},
 					},
@@ -97,11 +97,11 @@ export default function AppLayout() {
 					gestureEnabled: !cannotGoBack(usePathname()),
 					transitionSpec: {
 						open: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 200 },
 						},
 						close: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 200 },
 						},
 					},
@@ -129,11 +129,11 @@ export default function AppLayout() {
 					gestureEnabled: true,
 					transitionSpec: {
 						open: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 300 },
 						},
 						close: {
-							animation: 'timing',
+							animation: "timing",
 							config: { duration: 300 },
 						},
 					},
@@ -172,8 +172,8 @@ export default function AppLayout() {
 					gestureEnabled: true,
 					transitionSpec: {
 						open: {
-							animation: 'spring',
-							config: { 
+							animation: "spring",
+							config: {
 								stiffness: 1000,
 								damping: 500,
 								mass: 3,
@@ -183,7 +183,7 @@ export default function AppLayout() {
 							},
 						},
 						close: {
-							animation: 'spring',
+							animation: "spring",
 							config: {
 								stiffness: 1000,
 								damping: 500,
@@ -235,8 +235,8 @@ export default function AppLayout() {
 					gestureEnabled: true,
 					transitionSpec: {
 						open: {
-							animation: 'spring',
-							config: { 
+							animation: "spring",
+							config: {
 								stiffness: 1000,
 								damping: 500,
 								mass: 3,
@@ -246,7 +246,7 @@ export default function AppLayout() {
 							},
 						},
 						close: {
-							animation: 'spring',
+							animation: "spring",
 							config: {
 								stiffness: 1000,
 								damping: 500,

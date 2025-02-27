@@ -1,33 +1,33 @@
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 
-import { SafeAreaView } from '@/components/safe-area-view';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import { SafeAreaView } from "@/components/safe-area-view";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 
 export default function AccountVerificationScreen() {
-  const router = useRouter();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  
-  const handleContinue = () => {
-    if (selectedOption === 'no') {
-      router.push('/caregiver-onboarding/recipient-info');
-    } else if (selectedOption === 'yes') {
-      // In a real app, you would handle the invitation code flow
-      router.push('/caregiver-onboarding/recipient-info');
-    }
-  };
+	const router = useRouter();
+	const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-  // const onSubmit = (data: FormValues) => {
-  //   // In a real app, you would verify the code
-  //   console.log('Verification code:', data.code);
-  //   router.push('/caregiver-onboarding/recipient-info');
-  // };
+	const handleContinue = () => {
+		if (selectedOption === "no") {
+			router.push("/caregiver-onboarding/recipient-info");
+		} else if (selectedOption === "yes") {
+			// In a real app, you would handle the invitation code flow
+			router.push("/caregiver-onboarding/recipient-info");
+		}
+	};
 
-  return (
-    <SafeAreaView className="flex-1 bg-transparent">
-      {/* <View className="flex-1 px-4 py-4">
+	// const onSubmit = (data: FormValues) => {
+	//   // In a real app, you would verify the code
+	//   console.log('Verification code:', data.code);
+	//   router.push('/caregiver-onboarding/recipient-info');
+	// };
+
+	return (
+		<SafeAreaView className="flex-1 bg-transparent">
+			{/* <View className="flex-1 px-4 py-4">
         <Text className="text-2xl font-bold mb-8">
           Does the person receiving care already have an account?
         </Text>
@@ -97,6 +97,6 @@ export default function AccountVerificationScreen() {
           <Text>Continue</Text>
         </Button>
       </View> */}
-    </SafeAreaView>
-  );
-} 
+		</SafeAreaView>
+	);
+}

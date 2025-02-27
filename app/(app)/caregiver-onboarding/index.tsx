@@ -1,5 +1,5 @@
-import { Redirect } from 'expo-router';
+import { Redirect } from "expo-router";
 
 export default function CaregiverOnboardingIndex() {
-  return <Redirect href="/caregiver-onboarding/caregiver-info" />;
-} 
+	return <Redirect href="/caregiver-onboarding/caregiver-info" />;
+}
