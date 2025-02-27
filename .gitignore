@@ -11,10 +11,10 @@ npm-debug.*
 web-build/
 /android
 /ios
+/docs
 
 .env
 
-.cursorrules
 
 # macOS
 .DS_Store
