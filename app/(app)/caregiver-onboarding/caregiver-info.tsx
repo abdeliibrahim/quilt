@@ -4,14 +4,14 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-	Animated,
-	BackHandler,
-	Keyboard,
-	KeyboardAvoidingView,
-	Modal,
-	Platform,
-	TouchableOpacity,
-	View,
+    Animated,
+    BackHandler,
+    Keyboard,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { z } from "zod";
 
@@ -52,9 +52,9 @@ export default function CaregiverInfoScreen() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			firstName: caregiverInfo.firstName,
-			lastName: caregiverInfo.lastName,
-			relationship: caregiverInfo.relationship,
+			firstName: caregiverInfo.firstName || "",
+			lastName: caregiverInfo.lastName || "",
+			relationship: caregiverInfo.relationship || "",
 		},
 		mode: "onChange",
 	});
@@ -115,9 +115,9 @@ export default function CaregiverInfoScreen() {
 		return () => backHandler.remove();
 	}, [router, showPicker]);
 
-	// Check for form validity on mount (for returning to the page)
+	// check for form validity on mount (for returning to the page)
 	useEffect(() => {
-		// Only validate initial form state if we're not resetting
+		// only validate initial form state if we're not resetting
 		const currentValues = form.getValues();
 
 		const isFormComplete =
@@ -132,52 +132,49 @@ export default function CaregiverInfoScreen() {
 		setFormLoaded(true);
 	}, [form, setIsValid]);
 
-	// Update form validation state in context whenever form validity changes
+	// update form validation state in context whenever form validity changes
 	useEffect(() => {
 		if (formLoaded) {
 			setIsValid(form.formState.isValid);
 		}
 
 		return () => {
-			// We don't reset form validity when unmounting anymore
-			// This allows the form to stay valid when returning via back navigation
+			// we don't reset form validity when unmounting anymore
+			// this allows the form to stay valid when returning via back navigation
 		};
 	}, [form.formState.isValid, setIsValid, formLoaded]);
 
-	// Store form data in global state or context when valid
+	// store form data in global state or context when valid
 	useEffect(() => {
 		const subscription = form.watch((data) => {
-			if (form.formState.isValid) {
-				// Save caregiver info to context
-				setCaregiverInfo({
-					firstName: data.firstName || "",
-					lastName: data.lastName || "",
-					relationship: data.relationship || "",
-				});
-			}
+			const caregiverData = {
+				firstName: data.firstName || "",
+				lastName: data.lastName || "",
+				relationship: data.relationship || "",
+			};
+			console.log("[Caregiver Info] Updating caregiver data:", caregiverData);
+			setCaregiverInfo(caregiverData);
 		});
 
 		return () => subscription.unsubscribe();
 	}, [form, setCaregiverInfo]);
 
-	// Get the selected relationship label
 	const getRelationshipLabel = (value: string) => {
 		const option = RELATIONSHIP_OPTIONS.find((opt) => opt.value === value);
 		return option ? option.label : "Select relationship";
 	};
 
-	// Close picker with animation
 	const closePicker = () => {
 		Keyboard.dismiss();
 		Animated.parallel([
 			Animated.timing(fadeAnim, {
 				toValue: 0,
-				duration: 150, // Reduced from 250
+				duration: 150,
 				useNativeDriver: true,
 			}),
 			Animated.timing(slideAnim, {
 				toValue: 300,
-				duration: 150, // Reduced from 250
+				duration: 150, 
 				useNativeDriver: true,
 			}),
 		]).start(() => {

@@ -16,6 +16,7 @@ import {
 	Platform,
 	TouchableOpacity,
 	View,
+	Alert,
 } from "react-native";
 
 import { SafeAreaView } from "@/components/safe-area-view";
@@ -56,7 +57,11 @@ interface CaregiverRegistrationContextType {
 
 export const CaregiverRegistrationContext =
 	createContext<CaregiverRegistrationContextType>({
-		caregiverInfo: { firstName: "", lastName: "", relationship: "" },
+		caregiverInfo: { 
+			firstName: "", 
+			lastName: "", 
+			relationship: "" 
+		},
 		setCaregiverInfo: () => {},
 		accountInfo: { email: "", phone: "", password: "" },
 		setAccountInfo: () => {},
@@ -101,10 +106,13 @@ export default function CaregiverOnboardingLayout() {
 	// Check if onboarding is complete
 
 	// Caregiver registration state
-	const [caregiverInfo, setCaregiverInfo] = useState<CaregiverInfo>({
-		firstName: "",
-		lastName: "",
-		relationship: "",
+	const [caregiverInfo, setCaregiverInfo] = useState<CaregiverInfo>(() => {
+		// Try to load from storage or return default values
+		return {
+			firstName: "",
+			lastName: "",
+			relationship: "",
+		};
 	});
 	const [accountInfo, setAccountInfo] = useState<AccountInfo>({
 		email: "",
@@ -194,7 +202,20 @@ export default function CaregiverOnboardingLayout() {
 		// Wait a short delay before continuing to ensure keyboard is dismissed
 		setTimeout(() => {
 			if (pathname.includes("caregiver-info")) {
-				router.push("/caregiver-onboarding/account-creation");
+				// Log caregiver info before navigating
+				console.log("[Layout] Caregiver info before navigation:", caregiverInfo);
+				
+				// Only navigate if we have valid caregiver info
+				if (caregiverInfo.firstName && caregiverInfo.lastName && caregiverInfo.relationship) {
+					router.push("/caregiver-onboarding/account-creation");
+				} else {
+					// Alert if info is incomplete
+					Alert.alert(
+						"Missing Information",
+						"Please complete all fields before continuing.",
+						[{ text: "OK" }]
+					);
+				}
 			} else if (pathname.includes("account-creation")) {
 				// Start the registration process
 				setIsRegistering(true);

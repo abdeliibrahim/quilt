@@ -123,30 +123,47 @@ export default function AccountCreationScreen() {
 		const handleRegistration = async () => {
 			if (isRegistering && form.formState.isValid && agreedToTerms) {
 				try {
-					// Clear any previous errors
+					// clear any previous errors
 					setRegistrationError(null);
 
-					// Get the form data
+					// get the form data
 					const formData = form.getValues();
 
-					// Register the caregiver
-					await registerCaregiver(caregiverInfo, {
+					// validate caregiver info
+					if (!caregiverInfo.firstName || !caregiverInfo.lastName || !caregiverInfo.relationship) {
+						console.error("[Account Creation] Caregiver info is incomplete:", caregiverInfo);
+
+						setIsRegistering(false);
+						setRegistrationError("Please go back and complete your personal information");
+
+						Alert.alert(
+							"Missing Information",
+							"Please go back and complete your personal information first.",
+							[{ text: "OK" }]
+						);
+						return;
+					}
+					// register the caregiver
+					const user = await registerCaregiver(caregiverInfo, {
 						email: formData.email,
 						phone: formData.phone,
 						password: formData.password,
 					});
 
-					// Registration successful, continue to next screen
+					console.log("[Account Creation] Registration successful. User ID:", user?.id);
+
+					// registration successful, continue to next screen
 					setIsRegistering(false);
 					router.push("/caregiver-onboarding/prompt-recipient-setup");
 				} catch (error) {
-					// Handle registration error
+					// handle registration error
+					console.error("[Account Creation] Registration failed:", error);
 					setIsRegistering(false);
 					setRegistrationError(
 						error instanceof Error ? error.message : "Registration failed",
 					);
 
-					// Show error alert
+					// show error alert
 					Alert.alert(
 						"Registration Failed",
 						error instanceof Error
