@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, usePathname } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Dimensions, Image as RNImage, View } from "react-native";
 import Animated, {
@@ -280,20 +280,25 @@ export default function WelcomeScreen() {
 									onPress={() => {
 										if (user) {
 											// Get the current onboarding status from state
-
-											if (onboardingStatus?.account_created) {
-												router.push(
-													"/caregiver-onboarding/prompt-recipient-setup",
-												);
-											} else if (onboardingStatus?.patient_connected) {
-												router.push(
-													"/caregiver-onboarding/interface-selection",
-												);
-											} else if (onboardingStatus?.final_step) {
-												router.push("/caregiver-onboarding/code-sharing");
-											} else {
-												router.push("/caregiver-onboarding/caregiver-info");
-											}
+											
+											// Check if user is verified
+											supabase.auth.getUser().then(({ data }) => {
+												// const isVerified = data.user?.email_confirmed_at != null;
+												
+												// if (!isVerified) {
+												// 	// If not verified, send to verification page
+												// 	router.push("/caregiver-onboarding/account-verification");
+												// } else 
+												if (onboardingStatus?.account_created) {
+													router.push("/caregiver-onboarding/prompt-recipient-setup");
+												} else if (onboardingStatus?.patient_connected) {
+													router.push("/caregiver-onboarding/interface-selection");
+												} else if (onboardingStatus?.final_step) {
+													router.push("/caregiver-onboarding/code-sharing");
+												} else {
+													router.push("/caregiver-onboarding/caregiver-info");
+												}
+											});
 										}
 									}}
 								>

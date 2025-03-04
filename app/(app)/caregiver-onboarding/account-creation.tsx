@@ -154,7 +154,7 @@ export default function AccountCreationScreen() {
 
 					// registration successful, continue to next screen
 					setIsRegistering(false);
-					router.push("/caregiver-onboarding/prompt-recipient-setup");
+					router.push("/caregiver-onboarding/account-verification");
 				} catch (error) {
 					// handle registration error
 					console.error("[Account Creation] Registration failed:", error);

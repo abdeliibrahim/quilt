@@ -1,9 +1,9 @@
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
 import { Image } from "@/components/image";
 import { SafeAreaView } from "@/components/safe-area-view";
 import { Text } from "@/components/ui/text";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { useFormValidation } from "./_layout";
 
 export default function InterfaceSelectionScreen() {
@@ -13,8 +13,8 @@ export default function InterfaceSelectionScreen() {
 	>("default");
 	const { setIsValid } = useFormValidation();
 	useEffect(() => {
-		setIsValid(selectedInterface !== null);
-	}, [selectedInterface]);
+		setIsValid(true);
+	}, []);
 
 	return (
 		<SafeAreaView className="flex-1 bg-transparent">

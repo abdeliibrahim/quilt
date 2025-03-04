@@ -10,13 +10,13 @@ import React, {
 	useState,
 } from "react";
 import {
+	Alert,
 	Animated,
 	Keyboard,
 	KeyboardAvoidingView,
 	Platform,
 	TouchableOpacity,
 	View,
-	Alert,
 } from "react-native";
 
 import { SafeAreaView } from "@/components/safe-area-view";
@@ -84,7 +84,7 @@ const isPostAccountCreation = (path: string) => {
 };
 
 const hideContinueButton = (path: string) => {
-	return path.includes("prompt-recipient-setup");
+	return path.includes("prompt-recipient-setup") || path.includes("account-verification");
 };
 
 export default function CaregiverOnboardingLayout() {
@@ -221,9 +221,9 @@ export default function CaregiverOnboardingLayout() {
 				setIsRegistering(true);
 				// The registration process is handled in the account-creation.tsx file
 				// It will navigate to the next screen when complete
-			} else if (pathname.includes("prompt-recipient-setup")) {
-				router.push("/caregiver-onboarding/account-verification");
 			} else if (pathname.includes("account-verification")) {
+				router.push("/caregiver-onboarding/prompt-recipient-setup");
+			} else if (pathname.includes("prompt-recipient-setup")) {
 				router.push("/caregiver-onboarding/recipient-info");
 			} else if (pathname.includes("recipient-info")) {
 				router.push("/caregiver-onboarding/interface-selection");
@@ -231,7 +231,17 @@ export default function CaregiverOnboardingLayout() {
 				router.push("/caregiver-onboarding/code-sharing");
 			} else if (pathname.includes("code-sharing")) {
 				if (user) {
-					markOnboardingComplete(user.id);
+					markOnboardingComplete(user.id)
+						.then(() => {
+							// Navigate to the protected home screen after onboarding is complete
+							router.replace("/(app)/(protected)");
+						})
+						.catch((error) => {
+							console.error("Error marking onboarding as complete:", error);
+						});
+				} else {
+					// If no user, still navigate to home
+					router.replace("/(app)/(protected)");
 				}
 			}
 			// Final step - navigate to main app
@@ -473,7 +483,8 @@ export default function CaregiverOnboardingLayout() {
 											onPress={handleContinue}
 											disabled={
 												pathname.includes("code-sharing") ||
-												pathname.includes("account-verification")
+												pathname.includes("account-verification") ||
+												pathname.includes("interface-selection")
 													? false
 													: !isFormValid
 											}
